@@ -106,7 +106,8 @@ class Database:
         # App Associations
         self.app_associations = {a.split(":")[0].strip(): a.split(":")[1].strip() for a in (header[3]
                                 .replace("{", "").replace("}", "")
-                                .replace("\"", "").split(","))}
+                                .replace("\"", "").replace("'", "").split(","))}
+        self.entry_count = int(header[4].strip())
 
         # Dictionary Setups
         self.tags = dict()
@@ -153,6 +154,7 @@ class Database:
 
     def add_entry(self, entry):
         self.entries.append(entry)
+        self.entry_count += 1
 
         util.dictionary_list_add(self.authors, entry.author, entry)
         util.dictionary_list_add(self.series, entry.series, entry)
@@ -183,8 +185,14 @@ class Database:
                 continue
             self.add_entry(entry)
 
-    def save_files(self):
-        pass
+    def save_as_file(self, filepath: str):
+        text = self.name + "\n"
+        text = text + self.file_dir + "\n\n"
+        text = text + str(self.app_associations)
+        text = text
+
+    def set_app_associations(self, extension: str, app: str):
+        self.app_associations[extension] = app
 
     def set_cover(self, entry: Entry, cover: str):
         entry.cover_path = cover
@@ -223,9 +231,20 @@ class Database:
 
     def add_tag(self, entry: Entry, tag: str):
         util.dictionary_list_add(self.tags, tag, entry)
+        entry.tags.append(tag)
 
     def remove_tag(self, entry: Entry, tag: str):
         util.dictionary_list_remove(self.tags, tag, entry)
+        entry.tags.remove(tag)
+
+    def remove_entry(self, entry: Entry):
+        self.entries.remove(entry)
+        util.dictionary_list_remove(self.authors, entry.author, entry)
+        util.dictionary_list_remove(self.series, entry.series, entry)
+        util.dictionary_list_remove(self.languages, entry.language, entry)
+        util.dictionary_list_remove(self.age_ratings, entry.age_rating, entry)
+        for tag in entry.tags:
+            util.dictionary_list_remove(self.tags, tag, entry)
 
     def print(self):
         print(self.file_dir)
@@ -253,7 +272,16 @@ if __name__ == '__main__':
     database.print()
     print()
 
+    database.set_app_associations("txt", "nano")
     database.set_name(database.entries[1], "Lol1")
     database.set_author(database.entries[1], "Lol Master")
     database.add_tag(database.entries[1], "Meme")
     database.print()
+    print()
+
+    # database.remove_entry(database.entries[1])
+    # database.print()
+
+    # print('Filepath to Save:')
+    # savepath = input()
+    # database.save_as_file(savepath)

@@ -176,7 +176,8 @@ class Database:
         print(all_files)
 
         for file in all_files:
-            entry = Entry(file[len(self.db_dir):], "unknown", file[file.rfind("/"):file.rfind(".")],
+            file = file.replace("\\", "/")
+            entry = Entry(file[len(self.db_dir):], "unknown", file[file.rfind("/")+1:file.rfind(".")],
                           "unknown", "unknown", 1, "unknown", "unknown", 0,
                           (0, 0), ["unknown"])
 
@@ -186,10 +187,29 @@ class Database:
             self.add_entry(entry)
 
     def save_as_file(self, filepath: str):
-        text = self.name + "\n"
-        text = text + self.file_dir + "\n\n"
-        text = text + str(self.app_associations)
-        text = text
+        text = (
+            self.name + "\n" +
+            self.db_dir + "\n\n" +
+            str(self.app_associations) + "\n" +
+            str(self.entry_count) + "\n"
+        )
+
+        for entry in self.entries:
+            text = (
+                text + "\n---\n\n"
+                + entry.path + "\n"
+                + entry.cover_path + "\n"
+                + entry.name + "\n"
+                + entry.author + "\n"
+                + entry.series + ", " + str(entry.vol) + "\n"
+                + entry.language + ", " + entry.age_rating + "\n"
+                + str(entry.release) + "\n"
+                + str(entry.resolution[0]) + "x" + str(entry.resolution[1]) + "\n"
+                + str(entry.tags)[1:-1].replace("'", "") + "\n"
+            )
+
+        with open(filepath, "w", encoding="utf-8") as file:
+            file.write(text)
 
     def set_app_associations(self, extension: str, app: str):
         self.app_associations[extension] = app
@@ -245,6 +265,7 @@ class Database:
         util.dictionary_list_remove(self.age_ratings, entry.age_rating, entry)
         for tag in entry.tags:
             util.dictionary_list_remove(self.tags, tag, entry)
+        self.entry_count -= 1
 
     def print(self):
         print(self.file_dir)
@@ -272,16 +293,16 @@ if __name__ == '__main__':
     database.print()
     print()
 
-    database.set_app_associations("txt", "nano")
-    database.set_name(database.entries[1], "Lol1")
-    database.set_author(database.entries[1], "Lol Master")
-    database.add_tag(database.entries[1], "Meme")
-    database.print()
-    print()
+    # database.set_app_associations("txt", "nano")
+    # database.set_name(database.entries[1], "Lol1")
+    # database.set_author(database.entries[1], "Lol Master")
+    # database.add_tag(database.entries[1], "Meme")
+    # database.print()
+    # print()
 
     # database.remove_entry(database.entries[1])
     # database.print()
 
-    # print('Filepath to Save:')
-    # savepath = input()
-    # database.save_as_file(savepath)
+    print('Filepath to Save:')
+    savepath = input()
+    database.save_as_file(savepath)

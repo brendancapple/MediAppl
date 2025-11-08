@@ -128,10 +128,10 @@ class Database:
                 name=lines[3],
                 author=lines[4],
                 series=lines[5].split(",")[0].strip(),
-                vol=lines[5].split(",")[1].strip(),
+                vol=int(lines[5].split(",")[1].strip()),
                 language=lines[6].split(",")[0].strip(),
                 age_rating=lines[6].split(",")[1].strip(),
-                release=lines[7],
+                release=int(lines[7].strip()),
                 resolution=(int(lines[8].split("x")[0]), int(lines[8].split("x")[1])),
                 tags=[t.strip() for t in lines[9].split(",")]
             )
@@ -151,28 +151,8 @@ class Database:
             for tag in entry.tags:
                 util.dictionary_list_add(self.tags, tag, entry)
 
-        print(self.file_dir)
-        print(self.name)
-        print(self.db_dir)
-        print(self.app_associations)
-        print(self.entries)
-        print("-")
-        print(self.tags)
-        print(self.authors)
-        print(self.series)
-        print(self.languages)
-        print(self.age_ratings)
-        print("---")
-
     def add_entry(self, entry):
-        # print(lines)
-        # print(str(entry))
         self.entries.append(entry)
-
-        self.authors = dict()
-        self.series = dict()
-        self.languages = dict()
-        self.age_ratings = dict()
 
         util.dictionary_list_add(self.authors, entry.author, entry)
         util.dictionary_list_add(self.series, entry.series, entry)
@@ -194,8 +174,72 @@ class Database:
         print(all_files)
 
         for file in all_files:
-            if file in self.filepaths:
+            entry = Entry(file[len(self.db_dir):], "unknown", file[file.rfind("/"):file.rfind(".")],
+                          "unknown", "unknown", 1, "unknown", "unknown", 0,
+                          (0, 0), ["unknown"])
+
+            if entry.path in self.filepaths:
+                print("skip file")
                 continue
+            self.add_entry(entry)
+
+    def save_files(self):
+        pass
+
+    def set_cover(self, entry: Entry, cover: str):
+        entry.cover_path = cover
+
+    def set_name(self, entry: Entry, name: str):
+        entry.name = name
+
+    def set_author(self, entry: Entry, author: str):
+        util.dictionary_list_remove(self.authors, entry.author, entry)
+        entry.author = author
+        util.dictionary_list_add(self.authors, entry.author, entry)
+
+    def set_series(self, entry: Entry, series: str):
+        util.dictionary_list_remove(self.series, entry.series, entry)
+        entry.series = series
+        util.dictionary_list_add(self.series, entry.series, entry)
+
+    def set_vol(self, entry: Entry, vol: int):
+        entry.vol = vol
+
+    def set_language(self, entry: Entry, language: str):
+        util.dictionary_list_remove(self.languages, entry.language, entry)
+        entry.language = language
+        util.dictionary_list_add(self.languages, entry.language, entry)
+
+    def set_rating(self, entry: Entry, age_rating: str):
+        util.dictionary_list_remove(self.age_ratings, entry.age_rating, entry)
+        entry.age_rating = age_rating
+        util.dictionary_list_add(self.age_ratings, entry.age_rating, entry)
+
+    def set_release(self, entry: Entry, release: int):
+        entry.release = release
+
+    def set_resolution(self, entry: Entry, x: int, y:int):
+        entry.resolution = (x, y)
+
+    def add_tag(self, entry: Entry, tag: str):
+        util.dictionary_list_add(self.tags, tag, entry)
+
+    def remove_tag(self, entry: Entry, tag: str):
+        util.dictionary_list_remove(self.tags, tag, entry)
+
+    def print(self):
+        print(self.file_dir)
+        print(self.name)
+        print(self.db_dir)
+        print(self.app_associations)
+        print(self.entries)
+        print("-")
+        print("Tags: ", self.tags)
+        print("Authors: ", self.authors)
+        print("Series: ", self.series)
+        print("Languages: ", self.languages)
+        print("Ratings: ", self.age_ratings)
+        print("---")
 
 
 #
@@ -206,3 +250,10 @@ if __name__ == '__main__':
     filepath = input()
     database = Database(filepath)
     database.load_files()
+    database.print()
+    print()
+
+    database.set_name(database.entries[1], "Lol1")
+    database.set_author(database.entries[1], "Lol Master")
+    database.add_tag(database.entries[1], "Meme")
+    database.print()

@@ -108,6 +108,7 @@ class Database:
         self.languages = dict()
         self.age_ratings = dict()
         self.filepaths = dict()
+        self.extensions = dict()
 
         # Items
         self.entries: [Entry] = []
@@ -131,10 +132,10 @@ class Database:
             # print(str(entry))
             self.entries.append(entry)
 
-            self.authors = dict()
-            self.series = dict()
-            self.languages = dict()
-            self.age_ratings = dict()
+            # self.authors = dict()
+            # self.series = dict()
+            # self.languages = dict()
+            # self.age_ratings = dict()
 
             util.dictionary_list_add(self.authors, entry.author, entry)
             util.dictionary_list_add(self.series, entry.series, entry)
@@ -143,6 +144,8 @@ class Database:
             self.filepaths[entry.path] = entry
             for tag in entry.tags:
                 util.dictionary_list_add(self.tags, tag, entry)
+            if "." in entry.path:
+                util.dictionary_list_add(self.extensions, entry.path[entry.path.rfind(".")+1:], entry)
 
     def add_entry(self, entry):
         self.entries.append(entry)
@@ -174,7 +177,7 @@ class Database:
                 file = file[:file.rfind("/")]
                 entry_name = file[file.rfind("/"):]
             entry = Entry(file[len(self.db_dir):], "unknown", entry_name,
-                          "unknown", "unknown", 1, "unknown", "unknown", 0,
+                          "unknown", "unknown", 1, "unknown", "NA", 0,
                           (0, 0), ["unknown"])
 
             if entry.path in self.filepaths:
@@ -272,7 +275,7 @@ class Database:
 
     def search(self, query: str):
         query = query.strip()
-        words = util.powerset(query.split(" "))
+        words = util.powerset(query.split(" "))[1:]
         print(words)
 
         output_dict = dict()
@@ -305,6 +308,12 @@ class Database:
                         output_dict[entry] += 1
             if word in self.age_ratings:
                 for entry in self.age_ratings[word]:
+                    if entry not in output_dict:
+                        output_dict[entry] = 1
+                    else:
+                        output_dict[entry] += 1
+            if word in self.extensions:
+                for entry in self.extensions[word]:
                     if entry not in output_dict:
                         output_dict[entry] = 1
                     else:

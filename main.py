@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import (
     QListWidget, QListWidgetItem,
     QDialog, QFileDialog, QInputDialog, QDialogButtonBox
 )
+import subprocess
 import sys
 import os
 
@@ -221,8 +222,12 @@ class MainWindow(QMainWindow):
         toolbar = QToolBar("Toolbar")
         self.addToolBar(toolbar)
 
+        toolbar.addAction(button_open)
+        toolbar.addAction(button_edit)
+        toolbar.addSeparator()
         toolbar.addAction(button_load)
         toolbar.addAction(button_save)
+        toolbar.addSeparator()
 
         # Create Menu
         menu = self.menuBar()
@@ -230,6 +235,7 @@ class MainWindow(QMainWindow):
         file_menu = menu.addMenu("&File")
         file_menu.addAction(button_new)
         file_menu.addAction(button_load)
+        file_menu.addSeparator()
         file_menu.addAction(button_save)
         file_menu.addAction(button_save_as)
         file_menu.addAction(button_reload)
@@ -268,12 +274,14 @@ class MainWindow(QMainWindow):
 
         self.label_entryName = QLabel("Name Unknown")
         self.label_entryFilepath = QLabel("(Path Unknown)")
+        self.label_entryFilepath.setWordWrap(True)
         self.label_entryAuthor = QLabel("Author: Unknown")
         self.label_entrySeries = QLabel("Series: Unknown, 0")
         self.label_entryLanguage = QLabel("Language: Unknown [Unrated]")
         self.label_entryRelease = QLabel("Release: Unknown")
         self.label_entryResolution = QLabel("Resolution: 0x0")
         self.label_entryTags = QLabel("[]")
+        self.label_entryTags.setWordWrap(True)
         button_entryOpen = QPushButton("Open")
         button_entryOpen.clicked.connect(self.open_entry)
         button_entryEdit = QPushButton("Edit")
@@ -366,6 +374,10 @@ class MainWindow(QMainWindow):
 
     def open_entry(self):
         print("Open Entry")
+        path = self.database.db_dir + self.entry.path
+        ext = path[path.rfind(".")+1:].lower()
+        print(self.database.app_associations[ext] + " \'" + path + "\'")
+        subprocess.call([self.database.app_associations[ext], path])
 
     def edit_entry(self):
         print("Edit Entry")
@@ -402,7 +414,7 @@ class MainWindow(QMainWindow):
         self.label_entryAuthor.setText("Author: " + entry.author)
         self.label_entrySeries.setText("Series: " + entry.series + ", " + str(entry.vol))
         self.label_entryLanguage.setText(entry.language + " [" + entry.age_rating + "]")
-        self.label_entryRelease.setText(str(entry.release))
+        self.label_entryRelease.setText("Release: " + str(entry.release))
         self.label_entryResolution.setText("Resolution: " + str(entry.resolution[0]) + "x" + str(entry.resolution[1]))
         self.label_entryTags.setText("Tags: " + str(entry.tags))
 

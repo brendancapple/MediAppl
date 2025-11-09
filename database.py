@@ -1,6 +1,8 @@
 import os
 import util
 
+SUPPORTED_IMAGE_FORMATS = {"bmp", "png", "jpg", "jpeg", "gif", "cur", "ico", "jfif", "pbm", "pgm", "ppm", "svg", "svgz", "xbm", "xpm"}
+
 #
 #
 # Entry Class
@@ -109,6 +111,7 @@ class Database:
         self.age_ratings = dict()
         self.filepaths = dict()
         self.extensions = dict()
+        self.directories = util.Trie()
 
         # Items
         self.entries: [Entry] = []
@@ -132,16 +135,12 @@ class Database:
             # print(str(entry))
             self.entries.append(entry)
 
-            # self.authors = dict()
-            # self.series = dict()
-            # self.languages = dict()
-            # self.age_ratings = dict()
-
             util.dictionary_list_add(self.authors, entry.author.lower(), entry)
             util.dictionary_list_add(self.series, entry.series.lower(), entry)
             util.dictionary_list_add(self.languages, entry.language.lower(), entry)
             util.dictionary_list_add(self.age_ratings, entry.age_rating.lower(), entry)
             self.filepaths[entry.path] = entry
+            self.directories.add(entry.path, "/", entry)
             for tag in entry.tags:
                 util.dictionary_list_add(self.tags, tag, entry)
             if "." in entry.path:
@@ -155,6 +154,7 @@ class Database:
         util.dictionary_list_add(self.series, entry.series.lower(), entry)
         util.dictionary_list_add(self.languages, entry.language.lower(), entry)
         util.dictionary_list_add(self.age_ratings, entry.age_rating.lower(), entry)
+        self.directories.add(entry.path, "/", entry)
         self.filepaths[entry.path] = entry
         for tag in entry.tags:
             util.dictionary_list_add(self.tags, tag.lower(), entry)
@@ -173,10 +173,14 @@ class Database:
         for file in all_files:
             file = file.replace("\\", "/")
             entry_name = file[file.rfind("/")+1:file.rfind(".")]
-            if entry_name.replace("0", "").isdigit():
+            entry_ext = file[file.rfind(".")+1:]
+            entry_cover = "unknown"
+            if entry_ext in SUPPORTED_IMAGE_FORMATS:
+                entry_cover = file
+            if entry_name.isdigit():
                 file = file[:file.rfind("/")]
-                entry_name = file[file.rfind("/"):]
-            entry = Entry(file[len(self.db_dir):], "unknown", entry_name,
+                entry_name = file[file.rfind("/")+1:]
+            entry = Entry(file[len(self.db_dir):], entry_cover, entry_name,
                           "unknown", "unknown", 1, "unknown", "NA", 0,
                           (0, 0), ["unknown"])
 
@@ -326,7 +330,12 @@ class Database:
                         output_dict[entry] = 1
                     else:
                         output_dict[entry] += 1
-
+                path = entry.path.lower()
+                if word in path:
+                    if entry not in output_dict:
+                        output_dict[entry] = 1
+                    else:
+                        output_dict[entry] += 1
 
         output_dict = {key: value for key, value in sorted(output_dict.items(), key=lambda item: item[1], reverse=True)}
         print(output_dict)

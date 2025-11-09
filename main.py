@@ -154,7 +154,7 @@ class EditDialog(QDialog):
         print("Find Cover")
         dialog = QFileDialog(self)
         dialog.setFileMode(QFileDialog.FileMode.ExistingFiles)
-        dialog.setNameFilter("Image (*.png *.jpg *.jpeg *.bmp)")
+        dialog.setNameFilter("Image (*.png *.jpg *.jpeg *.bmp *.gif *.svg)")
         if dialog.exec_():
             filepath = dialog.selectedFiles()[0]
             self.input_cover.setText(filepath)

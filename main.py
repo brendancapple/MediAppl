@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QScrollArea,
     QLabel, QCheckBox, QPushButton, QLineEdit,
     QListWidget, QListWidgetItem,
-    QFileDialog, QInputDialog
+    QDialog, QFileDialog, QInputDialog, QDialogButtonBox
 )
 import sys
 import os
@@ -33,22 +33,149 @@ class EntryListing(QListWidgetItem):
         self.entry = entry
 
         self.setText("[" + self.entry.age_rating + "] " + self.entry.author + ": " + self.entry.name)
-        # self.clickedItem.connect(self.on_click)
-        # self.button.setFixedHeight(ENTRY_LISTING_HEIGHT)
 
-        # layout = QVBoxLayout()
-        # layout.addWidget(self.button)
-        # self.setLayout(layout)
-        # self.show()
+class EditDialog(QDialog):
+    def __init__(self, database: db.Database, entry: db.Entry, parent=None):
+        super().__init__(parent)
+        self.database = database
+        self.entry = entry
 
-    # def on_click(self):
-        # self.mw.entry = self.entry
-        # self.mw.update_entry_vbox()
+        self.setWindowTitle("HELLO!")
+
+        QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        self.buttonBox = QDialogButtonBox(QBtn)
+        self.buttonBox.accepted.connect(self.apply)
+        self.buttonBox.rejected.connect(self.reject)
+
+        message = QLabel("Edit Entry")
+
+        label_name = QLabel("Name: ")
+        self.input_name = QLineEdit(entry.name)
+        self.input_name.setPlaceholderText("Name")
+        layout_name = QHBoxLayout()
+        layout_name.addWidget(label_name)
+        layout_name.addWidget(self.input_name)
+        row_name = QWidget()
+        row_name.setLayout(layout_name)
+
+        label_cover = QLabel("Cover: ")
+        self.input_cover = QLineEdit(entry.cover_path)
+        self.input_cover.setPlaceholderText("Cover Path")
+        button_cover = QPushButton("...")
+        button_cover.clicked.connect(self.find_cover)
+        layout_cover = QHBoxLayout()
+        layout_cover.addWidget(label_cover)
+        layout_cover.addWidget(self.input_cover)
+        layout_cover.addWidget(button_cover)
+        row_cover = QWidget()
+        row_cover.setLayout(layout_cover)
+
+        label_author = QLabel("Author: ")
+        self.input_author = QLineEdit(entry.author)
+        self.input_author.setPlaceholderText("Author")
+        layout_author = QHBoxLayout()
+        layout_author.addWidget(label_author)
+        layout_author.addWidget(self.input_author)
+        row_author = QWidget()
+        row_author.setLayout(layout_author)
+
+        label_series = QLabel("Series: ")
+        self.input_series = QLineEdit(entry.series)
+        self.input_series.setPlaceholderText("Series")
+        self.input_vol = QLineEdit(str(entry.vol))
+        self.input_vol.setPlaceholderText("vol")
+        layout_series = QHBoxLayout()
+        layout_series.addWidget(label_series)
+        layout_series.addWidget(self.input_series)
+        layout_series.addWidget(self.input_vol)
+        row_series = QWidget()
+        row_series.setLayout(layout_series)
+
+        label_language = QLabel("Language: ")
+        self.input_language = QLineEdit(entry.language)
+        self.input_language.setPlaceholderText("Language")
+        label_rating = QLabel("Rating: ")
+        self.input_rating = QLineEdit(entry.age_rating)
+        self.input_rating.setPlaceholderText("Rating")
+        layout_language = QHBoxLayout()
+        layout_language.addWidget(label_language)
+        layout_language.addWidget(self.input_language)
+        layout_language.addWidget(label_rating)
+        layout_language.addWidget(self.input_rating)
+        row_language = QWidget()
+        row_language.setLayout(layout_language)
+
+        label_release = QLabel("Release: ")
+        self.input_release = QLineEdit(str(entry.release))
+        self.input_release.setPlaceholderText("Release Date")
+        layout_release = QHBoxLayout()
+        layout_release.addWidget(label_release)
+        layout_release.addWidget(self.input_release)
+        row_release = QWidget()
+        row_release.setLayout(layout_release)
+
+        label_resolution = QLabel("Resolution: ")
+        self.input_res1 = QLineEdit(str(entry.resolution[0]))
+        self.input_res1.setPlaceholderText("x")
+        self.input_res2 = QLineEdit(str(entry.resolution[1]))
+        self.input_res2.setPlaceholderText("y")
+        layout_resolution = QHBoxLayout()
+        layout_resolution.addWidget(label_resolution)
+        layout_resolution.addWidget(self.input_res1)
+        layout_resolution.addWidget(self.input_res2)
+        row_resolution = QWidget()
+        row_resolution.setLayout(layout_resolution)
+
+        label_tags = QLabel("Tags: ")
+        self.input_tags = QLineEdit(str(entry.tags)[1:-1].replace("'", ""))
+        self.input_tags.setPlaceholderText("Tag1, Tag2, Tag3, ...")
+        layout_tags = QHBoxLayout()
+        layout_tags.addWidget(label_tags)
+        layout_tags.addWidget(self.input_tags)
+        row_tags = QWidget()
+        row_tags.setLayout(layout_tags)
+
+        layout = QVBoxLayout()
+        layout.addWidget(message)
+        layout.addWidget(row_name)
+        layout.addWidget(row_cover)
+        layout.addWidget(row_author)
+        layout.addWidget(row_series)
+        layout.addWidget(row_language)
+        layout.addWidget(row_release)
+        layout.addWidget(row_resolution)
+        layout.addWidget(row_tags)
+        layout.addWidget(self.buttonBox)
+
+        self.setLayout(layout)
+
+    def find_cover(self):
+        print("Find Cover")
+        dialog = QFileDialog(self)
+        dialog.setFileMode(QFileDialog.FileMode.ExistingFiles)
+        dialog.setNameFilter("Image (*.png *.jpg *.jpeg *.bmp)")
+        if dialog.exec_():
+            filepath = dialog.selectedFiles()[0]
+            self.input_cover.setText(filepath)
+
+    def apply(self):
+        self.database.set_name(self.entry, self.input_name.text())
+        self.entry.cover_path = self.input_cover.text()
+        self.database.set_author(self.entry, self.input_author.text())
+        self.database.set_series(self.entry, self.input_series.text())
+        self.entry.vol = int(self.input_vol.text())
+        self.database.set_language(self.entry, self.input_language.text())
+        self.database.set_rating(self.entry, self.input_rating.text())
+        self.entry.release = int(self.input_release.text())
+        self.entry.resolution = (int(self.input_res1.text()), int(self.input_res2.text()))
+        self.database.set_tags(self.entry, self.input_tags.text())
+        self.accept()
 
 
 class MainWindow(QMainWindow):
     def __init__(self, app: QApplication):
         super().__init__()
+        self.screen = app.primaryScreen()
         self.database: db.Database = db.Database("test.appl")
         self.entry: db.Entry = self.database.entries[0]
 
@@ -69,6 +196,11 @@ class MainWindow(QMainWindow):
         button_save.setStatusTip("Save Database")
         button_save.setShortcut(QKeySequence("Ctrl+s"))
         button_save.triggered.connect(self.save_database)
+
+        button_save_as = QAction("Save As", self)
+        button_save_as.setStatusTip("Save Database as a New File")
+        button_save_as.setShortcut(QKeySequence("Ctrl+alt+s"))
+        button_save_as.triggered.connect(self.save_as_database)
 
         button_reload = QAction("Reload", self)
         button_reload.setStatusTip("Reload Database From Disk")
@@ -99,6 +231,7 @@ class MainWindow(QMainWindow):
         file_menu.addAction(button_new)
         file_menu.addAction(button_load)
         file_menu.addAction(button_save)
+        file_menu.addAction(button_save_as)
         file_menu.addAction(button_reload)
 
         entry_menu = menu.addMenu("&Entry")
@@ -126,10 +259,11 @@ class MainWindow(QMainWindow):
         self.vbox_db.addWidget(self.input_dbSearchbar)
         self.vbox_db.addWidget(self.list_dbEntries)
 
-        image_entryCover = QPixmap('res/placeholder.png')
+        image_entryCover = QPixmap('res/placeholder.png').scaled(int(self.screen.size().width()*0.25),
+                                                                 int(self.screen.size().height()*0.25), Qt.KeepAspectRatio)
         self.label_entryCover = QLabel()
         self.label_entryCover.setPixmap(image_entryCover)
-        self.label_entryCover.setScaledContents(True)
+        # self.label_entryCover.setScaledContents(True)
         self.label_entryCover.resize(500, 500)
 
         self.label_entryName = QLabel("Name Unknown")
@@ -188,6 +322,7 @@ class MainWindow(QMainWindow):
         self.database = db.Database(appl_path)
         self.database.load_files()
         self.database.save_as_file(appl_path)
+        self.update_ui()
 
     def load_database(self):
         print("Load Database")
@@ -202,11 +337,16 @@ class MainWindow(QMainWindow):
 
     def save_database(self):
         print("Save Database")
-        dialoge = QFileDialog(self)
-        dialoge.setFileMode(QFileDialog.FileMode.AnyFile)
-        dialoge.setNameFilter("Databases (*.appl)")
-        if dialoge.exec_():
-            filepath = dialoge.selectedFiles()[0]
+        self.database.save_as_file(self.database.file_dir)
+
+    def save_as_database(self):
+        print("Save As Database")
+        dialog = QFileDialog(self)
+        dialog.setFileMode(QFileDialog.FileMode.AnyFile)
+        dialog.setNameFilter("Databases (*.appl)")
+        dialog.setDirectory(self.database.db_dir)
+        if dialog.exec_():
+            filepath = dialog.selectedFiles()[0]
             self.database.save_as_file(filepath)
 
     def reload_database(self):
@@ -229,6 +369,9 @@ class MainWindow(QMainWindow):
 
     def edit_entry(self):
         print("Edit Entry")
+        edit_dialog = EditDialog(self.database, self.entry)
+        if edit_dialog.exec_():
+            self.update_entry_vbox()
 
     def update_ui(self):
         print("Update UI")
@@ -244,15 +387,21 @@ class MainWindow(QMainWindow):
     def update_entry_vbox(self):
         entry = self.entry
         if os.path.isfile(entry.cover_path):
-            image = QPixmap(entry.cover_path)
+            image = QPixmap(entry.cover_path).scaled(int(self.screen.size().width()*0.25),
+                                                     int(self.screen.size().height()*0.25), Qt.KeepAspectRatio)
             self.label_entryCover.setPixmap(image)
+            self.label_entryCover.setScaledContents(True)
         else:
+            image = QPixmap("res/placeholder.png").scaled(int(self.screen.size().width()*0.25),
+                                                          int(self.screen.size().height()*0.25), Qt.KeepAspectRatio)
+            self.label_entryCover.setPixmap(image)
+            self.label_entryCover.setScaledContents(True)
             print("Unknown Cover")
         self.label_entryName.setText(entry.name)
         self.label_entryFilepath.setText("(" + entry.path + ")")
-        self.label_entryAuthor.setText("Author:" + entry.author)
+        self.label_entryAuthor.setText("Author: " + entry.author)
         self.label_entrySeries.setText("Series: " + entry.series + ", " + str(entry.vol))
-        self.label_entryLanguage.setText(entry.language + "[" + entry.age_rating + "]")
+        self.label_entryLanguage.setText(entry.language + " [" + entry.age_rating + "]")
         self.label_entryRelease.setText(str(entry.release))
         self.label_entryResolution.setText("Resolution: " + str(entry.resolution[0]) + "x" + str(entry.resolution[1]))
         self.label_entryTags.setText("Tags: " + str(entry.tags))

@@ -148,13 +148,13 @@ class Database:
         self.entries.append(entry)
         self.entry_count += 1
 
-        util.dictionary_list_add(self.authors, entry.author, entry)
-        util.dictionary_list_add(self.series, entry.series, entry)
-        util.dictionary_list_add(self.languages, entry.language, entry)
-        util.dictionary_list_add(self.age_ratings, entry.age_rating, entry)
+        util.dictionary_list_add(self.authors, entry.author.lower(), entry)
+        util.dictionary_list_add(self.series, entry.series.lower(), entry)
+        util.dictionary_list_add(self.languages, entry.language.lower(), entry)
+        util.dictionary_list_add(self.age_ratings, entry.age_rating.lower(), entry)
         self.filepaths[entry.path] = entry
         for tag in entry.tags:
-            util.dictionary_list_add(self.tags, tag, entry)
+            util.dictionary_list_add(self.tags, tag.lower(), entry)
 
     def validate_files(self):
         pass
@@ -169,7 +169,11 @@ class Database:
 
         for file in all_files:
             file = file.replace("\\", "/")
-            entry = Entry(file[len(self.db_dir):], "unknown", file[file.rfind("/")+1:file.rfind(".")],
+            entry_name = file[file.rfind("/")+1:file.rfind(".")]
+            if entry_name.replace("0", "").isdigit():
+                file = file[:file.rfind("/")]
+                entry_name = file[file.rfind("/"):]
+            entry = Entry(file[len(self.db_dir):], "unknown", entry_name,
                           "unknown", "unknown", 1, "unknown", "unknown", 0,
                           (0, 0), ["unknown"])
 
@@ -213,27 +217,27 @@ class Database:
         entry.name = name
 
     def set_author(self, entry: Entry, author: str):
-        util.dictionary_list_remove(self.authors, entry.author, entry)
+        util.dictionary_list_remove(self.authors, entry.author.lower(), entry)
         entry.author = author
-        util.dictionary_list_add(self.authors, entry.author, entry)
+        util.dictionary_list_add(self.authors, entry.author.lower(), entry)
 
     def set_series(self, entry: Entry, series: str):
-        util.dictionary_list_remove(self.series, entry.series, entry)
+        util.dictionary_list_remove(self.series, entry.series.lower(), entry)
         entry.series = series
-        util.dictionary_list_add(self.series, entry.series, entry)
+        util.dictionary_list_add(self.series, entry.series.lower(), entry)
 
     def set_vol(self, entry: Entry, vol: int):
         entry.vol = vol
 
     def set_language(self, entry: Entry, language: str):
-        util.dictionary_list_remove(self.languages, entry.language, entry)
+        util.dictionary_list_remove(self.languages, entry.language.lower(), entry)
         entry.language = language
-        util.dictionary_list_add(self.languages, entry.language, entry)
+        util.dictionary_list_add(self.languages, entry.language.lower(), entry)
 
     def set_rating(self, entry: Entry, age_rating: str):
-        util.dictionary_list_remove(self.age_ratings, entry.age_rating, entry)
+        util.dictionary_list_remove(self.age_ratings, entry.age_rating.lower(), entry)
         entry.age_rating = age_rating
-        util.dictionary_list_add(self.age_ratings, entry.age_rating, entry)
+        util.dictionary_list_add(self.age_ratings, entry.age_rating.lower(), entry)
 
     def set_release(self, entry: Entry, release: int):
         entry.release = release
@@ -242,12 +246,19 @@ class Database:
         entry.resolution = (x, y)
 
     def add_tag(self, entry: Entry, tag: str):
-        util.dictionary_list_add(self.tags, tag, entry)
+        util.dictionary_list_add(self.tags, tag.lower(), entry)
         entry.tags.append(tag)
 
     def remove_tag(self, entry: Entry, tag: str):
-        util.dictionary_list_remove(self.tags, tag, entry)
+        util.dictionary_list_remove(self.tags, tag.lower(), entry)
         entry.tags.remove(tag)
+
+    def set_tags(self, entry: Entry, tags: str):
+        for t in entry.tags:
+            self.remove_tag(entry, t)
+        new_tags = [t.strip() for t in tags.split(",")]
+        for t in new_tags:
+            self.add_tag(entry, t)
 
     def remove_entry(self, entry: Entry):
         self.entries.remove(entry)
@@ -267,6 +278,7 @@ class Database:
         output_dict = dict()
 
         for word in words:
+            word = word.lower().strip()
             if word in self.tags:
                 for entry in self.tags[word]:
                     if entry not in output_dict:
@@ -299,7 +311,8 @@ class Database:
                         output_dict[entry] += 1
 
             for entry in self.entries:
-                if word in entry.name:
+                name = entry.name.lower()
+                if word in name:
                     if entry not in output_dict:
                         output_dict[entry] = 1
                     else:

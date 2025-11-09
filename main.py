@@ -257,6 +257,7 @@ class MainWindow(QMainWindow):
         self.list_dbEntries = QListWidget()
         self.list_dbEntries.setSelectionMode(QAbstractItemView.SingleSelection)
         # self.list_dbEntries.itemClicked.connect(self.switch_entry)
+        self.list_dbEntries.itemActivated.connect(self.open_entry)
         self.list_dbEntries.itemDoubleClicked.connect(self.open_entry)
         self.list_dbEntries.itemSelectionChanged.connect(self.switch_entry_keyboard)
 

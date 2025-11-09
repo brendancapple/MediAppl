@@ -222,11 +222,11 @@ class MainWindow(QMainWindow):
         toolbar = QToolBar("Toolbar")
         self.addToolBar(toolbar)
 
-        toolbar.addAction(button_open)
-        toolbar.addAction(button_edit)
-        toolbar.addSeparator()
         toolbar.addAction(button_load)
         toolbar.addAction(button_save)
+        toolbar.addSeparator()
+        toolbar.addAction(button_open)
+        toolbar.addAction(button_edit)
         toolbar.addSeparator()
 
         # Create Menu
@@ -375,6 +375,8 @@ class MainWindow(QMainWindow):
     def open_entry(self):
         print("Open Entry")
         path = self.database.db_dir + self.entry.path
+        if "." not in path:
+            path = path + "/" + os.listdir(path)[0]
         ext = path[path.rfind(".")+1:].lower()
         print(self.database.app_associations[ext] + " \'" + path + "\'")
         subprocess.call([self.database.app_associations[ext], path])

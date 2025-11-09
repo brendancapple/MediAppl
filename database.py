@@ -137,10 +137,10 @@ class Database:
             # self.languages = dict()
             # self.age_ratings = dict()
 
-            util.dictionary_list_add(self.authors, entry.author, entry)
-            util.dictionary_list_add(self.series, entry.series, entry)
-            util.dictionary_list_add(self.languages, entry.language, entry)
-            util.dictionary_list_add(self.age_ratings, entry.age_rating, entry)
+            util.dictionary_list_add(self.authors, entry.author.lower(), entry)
+            util.dictionary_list_add(self.series, entry.series.lower(), entry)
+            util.dictionary_list_add(self.languages, entry.language.lower(), entry)
+            util.dictionary_list_add(self.age_ratings, entry.age_rating.lower(), entry)
             self.filepaths[entry.path] = entry
             for tag in entry.tags:
                 util.dictionary_list_add(self.tags, tag, entry)

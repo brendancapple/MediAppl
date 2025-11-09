@@ -159,8 +159,10 @@ class Database:
         for tag in entry.tags:
             util.dictionary_list_add(self.tags, tag.lower(), entry)
 
-    def validate_files(self):
-        pass
+    def clean_entries(self):
+        for e in self.entries:
+            if not os.path.exists(self.db_dir + e.path):
+                self.remove_entry(e)
 
     def load_files(self):
         # print(os.listdir(self.db_dir))

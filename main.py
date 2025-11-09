@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QScrollArea,
     QLabel, QCheckBox, QPushButton, QLineEdit,
     QListWidget, QListWidgetItem,
-    QDialog, QFileDialog, QInputDialog, QDialogButtonBox
+    QDialog, QFileDialog, QInputDialog, QDialogButtonBox, QAbstractItemView
 )
 import subprocess
 import sys
@@ -178,6 +178,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.screen = app.primaryScreen()
         self.database: db.Database = db.Database("test.appl")
+        self.entries = []
         self.entry: db.Entry = self.database.entries[0]
 
         self.setWindowTitle("MediAppl")
@@ -248,17 +249,16 @@ class MainWindow(QMainWindow):
         self.setStatusBar(QStatusBar(self))
 
         # Create UI
-        button = QPushButton("Press Me!")
-        button.setCheckable(True)
-        button.clicked.connect(self.the_button_was_clicked)
-
         self.label_dbName = QLabel("Unknown")
         self.input_dbSearchbar = QLineEdit("")
         self.input_dbSearchbar.setPlaceholderText("Search")
         self.input_dbSearchbar.returnPressed.connect(self.search_entries)
 
         self.list_dbEntries = QListWidget()
-        self.list_dbEntries.itemClicked.connect(self.switch_entry)
+        self.list_dbEntries.setSelectionMode(QAbstractItemView.SingleSelection)
+        # self.list_dbEntries.itemClicked.connect(self.switch_entry)
+        self.list_dbEntries.itemDoubleClicked.connect(self.open_entry)
+        self.list_dbEntries.itemSelectionChanged.connect(self.switch_entry_keyboard)
 
         self.vbox_db = QVBoxLayout()
         self.vbox_db.addWidget(self.label_dbName)
@@ -313,9 +313,6 @@ class MainWindow(QMainWindow):
         layout_container.setLayout(hbox_main)
         self.setCentralWidget(layout_container)
 
-    def the_button_was_clicked(self):
-        print("button!")
-
     def new_database(self):
         print("New Database")
         db_path = QFileDialog.getExistingDirectory(self, "Select Folder")
@@ -340,6 +337,7 @@ class MainWindow(QMainWindow):
         if dialog.exec_():
             filepath = dialog.selectedFiles()[0]
             self.database = db.Database(filepath)
+            self.database.clean_entries()
             self.entry = self.database.entries[0]
             self.update_ui()
 
@@ -398,6 +396,11 @@ class MainWindow(QMainWindow):
         self.entry = entry_item.entry
         self.update_entry_vbox()
 
+    def switch_entry_keyboard(self):
+        index = self.list_dbEntries.currentIndex().row()
+        self.entry = self.entries[index]
+        self.update_entry_vbox()
+
     def update_entry_vbox(self):
         entry = self.entry
         if os.path.isfile(entry.cover_path):
@@ -421,6 +424,8 @@ class MainWindow(QMainWindow):
         self.label_entryTags.setText("Tags: " + str(entry.tags))
 
     def update_entries_scroll(self, entries):
+        print("Update Entries")
+        self.entries = entries
         self.list_dbEntries.clear()
 
         for e in entries:

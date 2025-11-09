@@ -260,7 +260,56 @@ class Database:
         self.entry_count -= 1
 
     def search(self, query: str):
-        pass
+        query = query.strip()
+        words = util.powerset(query.split(" "))
+        print(words)
+
+        output_dict = dict()
+
+        for word in words:
+            if word in self.tags:
+                for entry in self.tags[word]:
+                    if entry not in output_dict:
+                        output_dict[entry] = 1
+                    else:
+                        output_dict[entry] += 1
+            if word in self.languages:
+                for entry in self.languages[word]:
+                    if entry not in output_dict:
+                        output_dict[entry] = 1
+                    else:
+                        output_dict[entry] += 1
+            if word in self.authors:
+                for entry in self.authors[word]:
+                    if entry not in output_dict:
+                        output_dict[entry] = 1
+                    else:
+                        output_dict[entry] += 1
+            if word in self.series:
+                for entry in self.series[word]:
+                    if entry not in output_dict:
+                        output_dict[entry] = 1
+                    else:
+                        output_dict[entry] += 1
+            if word in self.age_ratings:
+                for entry in self.age_ratings[word]:
+                    if entry not in output_dict:
+                        output_dict[entry] = 1
+                    else:
+                        output_dict[entry] += 1
+
+            for entry in self.entries:
+                if word in entry.name:
+                    if entry not in output_dict:
+                        output_dict[entry] = 1
+                    else:
+                        output_dict[entry] += 1
+
+
+        output_dict = {key: value for key, value in sorted(output_dict.items(), key=lambda item: item[1], reverse=True)}
+        print(output_dict)
+
+        return output_dict.keys()
 
     def print(self):
         print(self.file_dir)

@@ -14,6 +14,21 @@ def dictionary_list_remove(d:dict, k, e):
     if len(d[k]) <= 0:
         d.pop(k)
 
+def powerset(s):
+    n = len(s)
+    result = []
+
+    # Iterate through all subsets (represented by 0 to 2^n - 1)
+    for i in range(1 << n):
+        subset = ""
+        for j in range(n):
+            # Check if the j-th bit is set in i
+            if i & (1 << j):
+                subset += " " + s[j]
+
+        result.append(subset.strip())
+
+    return result
 
 def hash_string(string: str) -> int:
     total = 0

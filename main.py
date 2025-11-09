@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QScrollArea,
     QLabel, QCheckBox, QPushButton, QLineEdit,
     QListWidget, QListWidgetItem,
-    QFileDialog
+    QFileDialog, QInputDialog
 )
 import sys
 import os
@@ -23,6 +23,7 @@ import os
 import database as db
 
 ENTRY_LISTING_HEIGHT = 60
+DEFAULT_APP_ASSOCIATIONS = {"mp3": "vlc", "txt": "vim"}
 
 
 class EntryListing(QListWidgetItem):
@@ -54,6 +55,11 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("MediAppl")
 
         # Create Actions
+        button_new = QAction("New", self)
+        button_new.setStatusTip("New Database")
+        button_new.setShortcut(QKeySequence("Ctrl+n"))
+        button_new.triggered.connect(self.new_database)
+
         button_load = QAction("Load", self)
         button_load.setStatusTip("Load Database")
         button_load.setShortcut(QKeySequence("Ctrl+o"))
@@ -90,9 +96,14 @@ class MainWindow(QMainWindow):
         menu = self.menuBar()
 
         file_menu = menu.addMenu("&File")
+        file_menu.addAction(button_new)
         file_menu.addAction(button_load)
         file_menu.addAction(button_save)
         file_menu.addAction(button_reload)
+
+        entry_menu = menu.addMenu("&Entry")
+        entry_menu.addAction(button_open)
+        entry_menu.addAction(button_edit)
 
         # Create Status Bar
         self.setStatusBar(QStatusBar(self))
@@ -163,6 +174,21 @@ class MainWindow(QMainWindow):
     def the_button_was_clicked(self):
         print("button!")
 
+    def new_database(self):
+        print("New Database")
+        db_path = QFileDialog.getExistingDirectory(self, "Select Folder")
+        print(db_path)
+        name, ok = QInputDialog.getText(self, 'Database Creation', 'Name:')
+        if not ok:
+            return
+
+        appl_path = db_path+"/"+name+".appl"
+        with open(appl_path, "w", encoding="utf-8") as file:
+            file.write(name+"\n"+db_path+"/\n\n"+str(DEFAULT_APP_ASSOCIATIONS)+"\n0\n")
+        self.database = db.Database(appl_path)
+        self.database.load_files()
+        self.database.save_as_file(appl_path)
+
     def load_database(self):
         print("Load Database")
         dialog = QFileDialog(self)
@@ -189,8 +215,14 @@ class MainWindow(QMainWindow):
         self.update_ui()
 
     def search_entries(self):
-        query = self.input_dbSearchbar.text()
+        query = self.input_dbSearchbar.text().strip()
         print("Search: " + query)
+
+        if query == "":
+            output = self.database.entries
+        else:
+            output = self.database.search(query)
+        self.update_entries_scroll(output)
 
     def open_entry(self):
         print("Open Entry")

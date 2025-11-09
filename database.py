@@ -84,7 +84,7 @@ class Database:
     # Initializes the DB
     def __init__(self, directory):
         content = ""
-        with open(filepath, "r", encoding="utf-8") as file:
+        with open(directory, "r", encoding="utf-8") as file:
             content = file.read()
 
         content = content.split("---")
@@ -258,6 +258,9 @@ class Database:
         for tag in entry.tags:
             util.dictionary_list_remove(self.tags, tag, entry)
         self.entry_count -= 1
+
+    def search(self, query: str):
+        pass
 
     def print(self):
         print(self.file_dir)

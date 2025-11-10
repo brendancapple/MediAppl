@@ -175,19 +175,15 @@ class Database:
         for file in all_files:
             file = file.replace("\\", "/")
             entry_name = file[file.rfind("/")+1:file.rfind(".")]
-            pre_entry_name = file[:file.rfind("/")]
-            entry_author = "unknown"
-            if "/" in pre_entry_name:
-                entry_author = pre_entry_name[pre_entry_name.rfind("/")+1:]
             entry_ext = file[file.rfind(".")+1:]
             entry_cover = "unknown"
             if entry_ext in SUPPORTED_IMAGE_FORMATS:
                 entry_cover = file
-            if entry_name.isdigit():
+            if entry_name.strip().replace("_", "").replace(".", "").isdigit():
                 file = file[:file.rfind("/")]
                 entry_name = file[file.rfind("/")+1:]
             entry = Entry(file[len(self.db_dir):], entry_cover, entry_name,
-                          entry_author, "unknown", 1, "unknown", "NA", 0,
+                          "unknown", "unknown", 1, "unknown", "NA", 0,
                           (0, 0), ["unknown"])
 
             if entry.path in self.filepaths:

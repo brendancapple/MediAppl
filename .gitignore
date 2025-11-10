@@ -1,2 +1,3 @@
 *.appl
 __pycache__
+.idea

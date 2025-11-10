@@ -13,9 +13,9 @@ from PyQt5.QtWidgets import (
     QWidget,
     QStatusBar, QToolBar, QAction,
     QVBoxLayout, QHBoxLayout, QScrollArea,
-    QLabel, QCheckBox, QPushButton, QLineEdit,
-    QListWidget, QListWidgetItem,
-    QDialog, QFileDialog, QInputDialog, QDialogButtonBox, QAbstractItemView
+    QLabel, QCheckBox, QPushButton, QLineEdit, QTextEdit,
+    QListWidget, QListWidgetItem, QAbstractItemView,
+    QDialog, QFileDialog, QInputDialog, QDialogButtonBox
 )
 import subprocess
 import sys
@@ -35,13 +35,58 @@ class EntryListing(QListWidgetItem):
 
         self.setText("[" + self.entry.age_rating + "] " + self.entry.author + ": " + self.entry.name)
 
+
+class PreferencesDialog(QDialog):
+    def __init__(self, database: db.Database, parent=None):
+        super().__init__(parent)
+        self.database = database
+
+        self.setWindowTitle(self.database.name + " Preferences")
+        QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        self.buttonBox = QDialogButtonBox(QBtn)
+        self.buttonBox.accepted.connect(self.apply)
+        self.buttonBox.rejected.connect(self.reject)
+
+        label_name = QLabel("Name: ")
+        self.input_name = QLineEdit(self.database.name)
+        self.input_name.setPlaceholderText("Name")
+        layout_name = QHBoxLayout()
+        layout_name.addWidget(label_name)
+        layout_name.addWidget(self.input_name)
+        row_name = QWidget()
+        row_name.setLayout(layout_name)
+
+        label_apps = QLabel("App Associations")
+        str_apps = "\n".join([k + ": " + v for k, v in self.database.app_associations.items()])
+        print(str_apps)
+        self.text_apps = QTextEdit()
+        self.text_apps.setText(str_apps)
+
+        layout = QVBoxLayout()
+        layout.addWidget(row_name)
+        layout.addWidget(label_apps)
+        layout.addWidget(self.text_apps)
+        layout.addWidget(self.buttonBox)
+        self.setLayout(layout)
+
+    def apply(self):
+        self.database.name = self.input_name.text()
+        dict_apps = {a.split(":")[0].strip(): a.split(":")[1].strip() for a in (self.text_apps.toPlainText()
+                                          .replace("\"", "").replace("'", "").split("\n"))}
+        self.database.app_associations = dict_apps
+        self.database.save_as_file(self.database.file_dir)
+        self.accept()
+
+
+
+
 class EditDialog(QDialog):
     def __init__(self, database: db.Database, entry: db.Entry, parent=None):
         super().__init__(parent)
         self.database = database
         self.entry = entry
 
-        self.setWindowTitle("HELLO!")
+        self.setWindowTitle("Edit " + self.entry.name)
 
         QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         self.buttonBox = QDialogButtonBox(QBtn)
@@ -219,6 +264,11 @@ class MainWindow(QMainWindow):
         button_open.setShortcut(QKeySequence("Ctrl+enter"))
         button_open.triggered.connect(self.open_entry)
 
+        button_preferences = QAction("Preferences", self)
+        button_preferences.setStatusTip("Edit Database Preferences")
+        button_preferences.setShortcut(QKeySequence("Ctrl+p"))
+        button_preferences.triggered.connect(self.edit_preferences)
+
         # Create Toolbar
         toolbar = QToolBar("Toolbar")
         self.addToolBar(toolbar)
@@ -240,6 +290,8 @@ class MainWindow(QMainWindow):
         file_menu.addAction(button_save)
         file_menu.addAction(button_save_as)
         file_menu.addAction(button_reload)
+        file_menu.addSeparator()
+        file_menu.addAction(button_preferences)
 
         entry_menu = menu.addMenu("&Entry")
         entry_menu.addAction(button_open)
@@ -385,6 +437,12 @@ class MainWindow(QMainWindow):
         edit_dialog = EditDialog(self.database, self.entry)
         if edit_dialog.exec_():
             self.update_entry_vbox()
+
+    def edit_preferences(self):
+        print("Edit Preferences")
+        preferences_dialog = PreferencesDialog(self.database)
+        if preferences_dialog.exec_():
+            self.update_ui()
 
     def update_ui(self):
         print("Update UI")

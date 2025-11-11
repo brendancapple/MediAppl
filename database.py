@@ -264,7 +264,8 @@ class Database:
 
     def set_tags(self, entry: Entry, tags: str):
         for t in entry.tags:
-            self.remove_tag(entry, t)
+            util.dictionary_list_remove(self.tags, t.lower(), entry)
+        entry.tags = []
         new_tags = [t.strip() for t in tags.split(",")]
         for t in new_tags:
             self.add_tag(entry, t)

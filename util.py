@@ -1,7 +1,9 @@
+import os.path
+
 import ebooklib
 from ebooklib import epub
 from PIL import Image
-# from io import BytesIO
+from io import BytesIO
 # import os
 
 # Trie
@@ -121,6 +123,7 @@ def hash_string(string: str) -> int:
 #     mkdir_p(os.path.dirname(path))
 #     return open(path, 'w')
 
+
 # Cover Grabbing
 def get_epub_cover(epub_path):
     print("get_epub_cover of " + epub_path)
@@ -128,3 +131,22 @@ def get_epub_cover(epub_path):
     cover_data = book.get_item_with_id('cover-image').get_content()
     del book
     cover_image = Image.open(BytesIO(cover_data))
+    del cover_data
+    return cover_image
+
+
+def cache_epub_cover(db_dir: str, cache: str, epub_path: str) -> str:
+    print("cache_epub_cover of " + epub_path)
+    book = epub.read_epub(epub_path)
+    cover_data = book.get_item_with_id('cover-image').get_content()
+    del book
+    cover_image = Image.open(BytesIO(cover_data))
+    del cover_data
+
+    if not os.path.exists(db_dir + cache):
+        os.mkdir(db_dir + cache)
+    epub_name = epub_path[epub_path.rfind("/")+1:epub_path.rfind(".")]
+    image_path = db_dir + cache + "/" + epub_name + ".jpg"
+    print("Cached Image Path " + image_path)
+    cover_image.save(image_path)
+    return image_path

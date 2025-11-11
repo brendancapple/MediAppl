@@ -483,24 +483,24 @@ class MainWindow(QMainWindow):
             self.label_entryCover.setPixmap(image)
             self.label_entryCover.setScaledContents(True)
             return True
-        print("Checking for Implicit Cover")
-        if "." in entry.path:
-            entry_ext = entry.path[entry.path.rfind(".")+1:]
-            print(entry_ext)
-            if entry_ext == "epub":
-                try:
-                    img = util.get_epub_cover(self.database.db_dir + entry.path)
-                    print("image opened")
-                    qim = ImageQt.ImageQt(img)
-                    print("image qim")
-                    image = QPixmap.fromImage(qim)
-                    print("Load img")
-                    self.label_entryCover.setPixmap(image)
-                    print("Set img")
-                    # self.label_entryCover.setScaledContents(True)
-                    return True
-                except:
-                    pass
+        # print("Checking for Implicit Cover")
+        # if "." in entry.path:
+        #     entry_ext = entry.path[entry.path.rfind(".")+1:]
+        #     print(entry_ext)
+        #     if entry_ext == "epub":
+        #         try:
+        #             img = util.get_epub_cover(self.database.db_dir + entry.path)
+        #             print("image opened")
+        #             qim = ImageQt.ImageQt(img)
+        #             print("image qim")
+        #             image = QPixmap.fromImage(qim)
+        #             print("Load img")
+        #             self.label_entryCover.setPixmap(image)
+        #             print("Set img")
+        #             self.label_entryCover.setScaledContents(True)
+        #             return True
+        #         except:
+        #             pass
 
         image = QPixmap("res/placeholder.png").scaled(int(self.screen.size().width()*0.25),
                                                           int(self.screen.size().height()*0.25), Qt.KeepAspectRatio)

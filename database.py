@@ -1,6 +1,7 @@
 import os
 import util
 
+CACHE_DIR = "_cache"
 SUPPORTED_IMAGE_FORMATS = {"bmp", "png", "jpg", "jpeg", "gif", "cur", "ico", "jfif", "pbm", "pgm", "ppm", "svg", "svgz", "xbm", "xpm"}
 
 #
@@ -174,15 +175,17 @@ class Database:
 
         for file in all_files:
             file = file.replace("\\", "/")
-            print(file[len(self.db_dir):][:6])
-            if file[len(self.db_dir):][:6] == "cache":
+            print(file[len(self.db_dir):][:5])
+            if file[len(self.db_dir):][:len(CACHE_DIR)] == CACHE_DIR:
                 continue
 
             entry_name = file[file.rfind("/")+1:file.rfind(".")]
             entry_ext = file[file.rfind(".")+1:]
             entry_cover = "unknown"
-            if entry_ext in SUPPORTED_IMAGE_FORMATS:
+            if entry_ext.lower() in SUPPORTED_IMAGE_FORMATS:
                 entry_cover = file
+            if entry_ext.lower() == "epub":
+                entry_cover = util.cache_epub_cover(self.db_dir, CACHE_DIR, file)
             if entry_name.strip().replace("_", "").replace(".", "").isdigit():
                 file = file[:file.rfind("/")]
                 entry_name = file[file.rfind("/")+1:]

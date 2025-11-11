@@ -1,3 +1,9 @@
+import ebooklib
+from ebooklib import epub
+from PIL import Image
+# from io import BytesIO
+# import os
+
 # Trie
 def list_tree(d: dict) -> list:
     output = []
@@ -98,3 +104,27 @@ def hash_string(string: str) -> int:
     for c in string:
         total += ord(c)
     return total
+
+# Safe Open
+# def mkdir_p(path):
+#     try:
+#         os.makedirs(path)
+#     except OSError as exc:  # Python >2.5
+#         if exc.errno == errno.EEXIST and os.path.isdir(path):
+#             pass
+#         else:
+#             raise
+#
+# def safe_open_w(path):
+#     ''' Open "path" for writing, creating any parent directories as needed.
+#     '''
+#     mkdir_p(os.path.dirname(path))
+#     return open(path, 'w')
+
+# Cover Grabbing
+def get_epub_cover(epub_path):
+    print("get_epub_cover of " + epub_path)
+    book = epub.read_epub(epub_path)
+    cover_data = book.get_item_with_id('cover-image').get_content()
+    del book
+    cover_image = Image.open(BytesIO(cover_data))

@@ -7,7 +7,7 @@
 #
 #
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QKeySequence, QPixmap
+from PyQt5.QtGui import QIcon, QKeySequence, QPixmap, QImage
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow,
     QWidget,
@@ -17,11 +17,14 @@ from PyQt5.QtWidgets import (
     QListWidget, QListWidgetItem, QAbstractItemView,
     QDialog, QFileDialog, QInputDialog, QDialogButtonBox
 )
+from PIL import Image
+from PIL import ImageQt
 import subprocess
 import sys
 import os
 
 import database as db
+import util
 
 ENTRY_LISTING_HEIGHT = 60
 DEFAULT_APP_ASSOCIATIONS = {"mp3": "vlc", "txt": "vim"}
@@ -456,23 +459,15 @@ class MainWindow(QMainWindow):
         self.update_entry_vbox()
 
     def switch_entry_keyboard(self):
+        if len(self.entries) < 1:
+            return
         index = self.list_dbEntries.currentIndex().row()
         self.entry = self.entries[index]
-        self.update_entry_vbox()
+        success = self.update_entry_vbox()
+        print("entry Updated ", success)
 
     def update_entry_vbox(self):
         entry = self.entry
-        if os.path.isfile(entry.cover_path):
-            image = QPixmap(entry.cover_path).scaled(int(self.screen.size().width()*0.25),
-                                                     int(self.screen.size().height()*0.25), Qt.KeepAspectRatio)
-            self.label_entryCover.setPixmap(image)
-            self.label_entryCover.setScaledContents(True)
-        else:
-            image = QPixmap("res/placeholder.png").scaled(int(self.screen.size().width()*0.25),
-                                                          int(self.screen.size().height()*0.25), Qt.KeepAspectRatio)
-            self.label_entryCover.setPixmap(image)
-            self.label_entryCover.setScaledContents(True)
-            print("Unknown Cover")
         self.label_entryName.setText(entry.name)
         self.label_entryFilepath.setText("(" + entry.path + ")")
         self.label_entryAuthor.setText("Author: " + entry.author)
@@ -482,9 +477,42 @@ class MainWindow(QMainWindow):
         self.label_entryResolution.setText("Resolution: " + str(entry.resolution[0]) + "x" + str(entry.resolution[1]))
         self.label_entryTags.setText("Tags: " + str(entry.tags))
 
+        if os.path.isfile(entry.cover_path):
+            image = QPixmap(entry.cover_path).scaled(int(self.screen.size().width()*0.25),
+                                                     int(self.screen.size().height()*0.25), Qt.KeepAspectRatio)
+            self.label_entryCover.setPixmap(image)
+            self.label_entryCover.setScaledContents(True)
+            return True
+        print("Checking for Implicit Cover")
+        if "." in entry.path:
+            entry_ext = entry.path[entry.path.rfind(".")+1:]
+            print(entry_ext)
+            if entry_ext == "epub":
+                try:
+                    img = util.get_epub_cover(self.database.db_dir + entry.path)
+                    print("image opened")
+                    qim = ImageQt.ImageQt(img)
+                    print("image qim")
+                    image = QPixmap.fromImage(qim)
+                    print("Load img")
+                    self.label_entryCover.setPixmap(image)
+                    print("Set img")
+                    # self.label_entryCover.setScaledContents(True)
+                    return True
+                except:
+                    pass
+
+        image = QPixmap("res/placeholder.png").scaled(int(self.screen.size().width()*0.25),
+                                                          int(self.screen.size().height()*0.25), Qt.KeepAspectRatio)
+        self.label_entryCover.setPixmap(image)
+        self.label_entryCover.setScaledContents(True)
+        print("Unknown Cover")
+        return False
+
     def update_entries_scroll(self, entries):
         print("Update Entries")
         self.entries = entries
+        print(self.entries)
         self.list_dbEntries.clear()
 
         for e in entries:

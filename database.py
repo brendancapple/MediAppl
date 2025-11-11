@@ -174,6 +174,10 @@ class Database:
 
         for file in all_files:
             file = file.replace("\\", "/")
+            print(file[len(self.db_dir):][:6])
+            if file[len(self.db_dir):][:6] == "cache":
+                continue
+
             entry_name = file[file.rfind("/")+1:file.rfind(".")]
             entry_ext = file[file.rfind(".")+1:]
             entry_cover = "unknown"
@@ -286,41 +290,61 @@ class Database:
         print(words)
 
         output_dict = dict()
+        filtered_set = set(self.entries)
 
         for word in words:
             word = word.lower().strip()
+
+            if word.count("[") > 1:
+                continue
+            filtered = "[" in word and "]" in word
+            temp_filtered_set = set()
+            word = word.replace("[", "").replace("]", "")
+
             if word in self.tags:
                 for entry in self.tags[word]:
+                    if filtered and entry in filtered_set:
+                        temp_filtered_set.add(entry)
                     if entry not in output_dict:
                         output_dict[entry] = 1
                     else:
                         output_dict[entry] += 1
             if word in self.languages:
                 for entry in self.languages[word]:
+                    if filtered and entry in filtered_set:
+                        temp_filtered_set.add(entry)
                     if entry not in output_dict:
                         output_dict[entry] = 1
                     else:
                         output_dict[entry] += 1
             if word in self.authors:
                 for entry in self.authors[word]:
+                    if filtered and entry in filtered_set:
+                        temp_filtered_set.add(entry)
                     if entry not in output_dict:
                         output_dict[entry] = 1
                     else:
                         output_dict[entry] += 1
             if word in self.series:
                 for entry in self.series[word]:
+                    if filtered and entry in filtered_set:
+                        temp_filtered_set.add(entry)
                     if entry not in output_dict:
                         output_dict[entry] = 1
                     else:
                         output_dict[entry] += 1
             if word in self.age_ratings:
                 for entry in self.age_ratings[word]:
+                    if filtered and entry in filtered_set:
+                        temp_filtered_set.add(entry)
                     if entry not in output_dict:
                         output_dict[entry] = 1
                     else:
                         output_dict[entry] += 1
             if word in self.extensions:
                 for entry in self.extensions[word]:
+                    if filtered and entry in filtered_set:
+                        temp_filtered_set.add(entry)
                     if entry not in output_dict:
                         output_dict[entry] = 1
                     else:
@@ -340,10 +364,18 @@ class Database:
                     else:
                         output_dict[entry] += 1
 
+            if filtered:
+                filtered_set = temp_filtered_set
+
         output_dict = {key: value for key, value in sorted(output_dict.items(), key=lambda item: item[1], reverse=True)}
         print(output_dict)
+        output_list = []
+        for k in output_dict.keys():
+            if k in filtered_set:
+                output_list.append(k)
+        print(output_list)
 
-        return output_dict.keys()
+        return output_list
 
     def print(self):
         print(self.file_dir)

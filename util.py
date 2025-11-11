@@ -1,10 +1,11 @@
 import os.path
 
-import ebooklib
+import cv2
 from ebooklib import epub
 from PIL import Image
 from io import BytesIO
 # import os
+
 
 # Trie
 def list_tree(d: dict) -> list:
@@ -150,3 +151,39 @@ def cache_epub_cover(db_dir: str, cache: str, epub_path: str) -> str:
     print("Cached Image Path " + image_path)
     cover_image.save(image_path)
     return image_path
+
+
+def cache_video_cover(db_dir: str, cache: str, vid_path: str) -> str:
+    print("cache_video_cover of " + vid_path)
+
+    video = cv2.VideoCapture(vid_path)
+    total_frames = video.get(cv2.CAP_PROP_FRAME_COUNT)
+    mid_frame = int(total_frames / 3)
+    print(mid_frame, "/", total_frames)
+
+    video.set(cv2.CAP_PROP_FRAME_COUNT, mid_frame)
+    ret, frame = video.read()
+
+    if not os.path.exists(db_dir + cache):
+        os.mkdir(db_dir + cache)
+    epub_name = vid_path[vid_path.rfind("/")+1:vid_path.rfind(".")]
+    image_path = db_dir + cache + "/" + epub_name + ".jpg"
+    print("Cached Image Path " + image_path)
+    cv2.imwrite(image_path, frame)
+    del video
+    return image_path
+
+
+def get_video_resolution(vid_path):
+    video = cv2.VideoCapture(vid_path)
+    width = video.get(cv2.CAP_PROP_FRAME_WIDTH)  # float `width`
+    height = video.get(cv2.CAP_PROP_FRAME_HEIGHT)  # float `height`
+    res = (int(width), int(height))
+    return res
+
+
+def get_image_resolution(img_path):
+    img = Image.open(img_path)
+    width, height = img.size
+    res = (width, height)
+    return res

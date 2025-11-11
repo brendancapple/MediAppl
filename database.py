@@ -3,6 +3,7 @@ import util
 
 CACHE_DIR = "_cache"
 SUPPORTED_IMAGE_FORMATS = {"bmp", "png", "jpg", "jpeg", "gif", "cur", "ico", "jfif", "pbm", "pgm", "ppm", "svg", "svgz", "xbm", "xpm"}
+SUPPORTED_VIDEO_FORMATS = {"mp4", "mov", "avi", "flv", "mkv"}
 
 #
 #
@@ -182,8 +183,13 @@ class Database:
             entry_name = file[file.rfind("/")+1:file.rfind(".")]
             entry_ext = file[file.rfind(".")+1:]
             entry_cover = "unknown"
+            entry_res = (0,0)
             if entry_ext.lower() in SUPPORTED_IMAGE_FORMATS:
                 entry_cover = file
+                entry_res = util.get_image_resolution(file)
+            if entry_ext.lower() in SUPPORTED_VIDEO_FORMATS:
+                entry_cover = util.cache_video_cover(self.db_dir, CACHE_DIR, file)
+                entry_res = util.get_video_resolution(file)
             if entry_ext.lower() == "epub":
                 entry_cover = util.cache_epub_cover(self.db_dir, CACHE_DIR, file)
             if entry_name.strip().replace("_", "").replace(".", "").isdigit():
@@ -191,7 +197,7 @@ class Database:
                 entry_name = file[file.rfind("/")+1:]
             entry = Entry(file[len(self.db_dir):], entry_cover, entry_name,
                           "unknown", "unknown", 1, "unknown", "NA", 0,
-                          (0, 0), ["unknown"])
+                          entry_res, ["unknown"])
 
             if entry.path in self.filepaths:
                 print("skip file")

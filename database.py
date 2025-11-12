@@ -402,29 +402,3 @@ class Database:
         print("Languages: ", self.languages)
         print("Ratings: ", self.age_ratings)
         print("---")
-
-
-#
-#
-# Program Loop
-if __name__ == '__main__':
-    print('Filepath to Database:')
-    filepath = input()
-    database = Database(filepath)
-    database.load_files()
-    database.print()
-    print()
-
-    # database.set_app_associations("txt", "nano")
-    # database.set_name(database.entries[1], "Lol1")
-    # database.set_author(database.entries[1], "Lol Master")
-    # database.add_tag(database.entries[1], "Meme")
-    # database.print()
-    # print()
-
-    # database.remove_entry(database.entries[1])
-    # database.print()
-
-    print('Filepath to Save:')
-    savepath = input()
-    database.save_as_file(savepath)

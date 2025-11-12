@@ -176,14 +176,16 @@ class Database:
 
         for file in all_files:
             file = file.replace("\\", "/")
-            print(file[len(self.db_dir):][:5])
+            # print(file[len(self.db_dir):][:5])
             if file[len(self.db_dir):][:len(CACHE_DIR)] == CACHE_DIR:
                 continue
 
             entry_name = file[file.rfind("/")+1:file.rfind(".")]
             entry_ext = file[file.rfind(".")+1:]
             entry_cover = "unknown"
-            entry_res = (0,0)
+            entry_lang = "unknown"
+            entry_author = "unknown"
+            entry_res = (0, 0)
             if entry_ext.lower() in SUPPORTED_IMAGE_FORMATS:
                 entry_cover = file
                 entry_res = util.get_image_resolution(file)
@@ -192,11 +194,12 @@ class Database:
                 entry_res = util.get_video_resolution(file)
             if entry_ext.lower() == "epub":
                 entry_cover = util.cache_epub_cover(self.db_dir, CACHE_DIR, file)
+                entry_name, entry_author, entry_lang = util.get_epub_metadata(file)
             if entry_name.strip().replace("_", "").replace(".", "").isdigit():
                 file = file[:file.rfind("/")]
                 entry_name = file[file.rfind("/")+1:]
             entry = Entry(file[len(self.db_dir):], entry_cover, entry_name,
-                          "unknown", "unknown", 1, "unknown", "NA", 0,
+                          entry_author, "unknown", 1, entry_lang, "NA", 0,
                           entry_res, ["unknown"])
 
             if entry.path in self.filepaths:

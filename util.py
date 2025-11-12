@@ -6,6 +6,19 @@ from PIL import Image
 from io import BytesIO
 # import os
 
+LANGUAGE_CODES = {
+    'en': 'English',
+    'es': 'Español',
+    'jp': '日本語',
+    'de': 'Deutsch',
+    'he': 'עברית',
+    'hi': 'हिंदी',
+    'ko': '한국어',
+    'fr': 'Français',
+    'zh': '中文',
+    'ru': 'русский',
+}
+
 
 # Trie
 def list_tree(d: dict) -> list:
@@ -126,7 +139,7 @@ def hash_string(string: str) -> int:
 
 
 # Cover Grabbing
-def get_epub_cover(epub_path):
+def get_epub_cover(epub_path: str):
     print("get_epub_cover of " + epub_path)
     book = epub.read_epub(epub_path)
     cover_data = book.get_item_with_id('cover-image').get_content()
@@ -134,6 +147,20 @@ def get_epub_cover(epub_path):
     cover_image = Image.open(BytesIO(cover_data))
     del cover_data
     return cover_image
+
+
+def get_epub_metadata(epub_path: str):
+    print("get_epub_metadata of " + epub_path)
+    book = epub.read_epub(epub_path)
+    name = book.get_metadata('DC', 'title')[0][0]
+    print(name)
+    author = book.get_metadata('DC', 'creator')[0][0]
+    print(author)
+    language = book.get_metadata('DC', 'language')[0][0]
+    if language in LANGUAGE_CODES:
+        language = LANGUAGE_CODES[language]
+    print(language)
+    return name, author, language
 
 
 def cache_epub_cover(db_dir: str, cache: str, epub_path: str) -> str:

@@ -8,6 +8,8 @@ from io import BytesIO
 
 LANGUAGE_CODES = {
     'en': 'English',
+    'en-US': 'English',
+    'en-UK': 'English',
     'es': 'Español',
     'jp': '日本語',
     'de': 'Deutsch',
@@ -151,7 +153,10 @@ def get_epub_cover(epub_path: str):
 
 def get_epub_metadata(epub_path: str):
     print("get_epub_metadata of " + epub_path)
-    book = epub.read_epub(epub_path)
+    try:
+        book = epub.read_epub(epub_path)
+    except:
+        return "unknown", "unknown", "unknown"
     name = book.get_metadata('DC', 'title')[0][0]
     print(name)
     author = book.get_metadata('DC', 'creator')[0][0]
@@ -160,13 +165,17 @@ def get_epub_metadata(epub_path: str):
     if language in LANGUAGE_CODES:
         language = LANGUAGE_CODES[language]
     print(language)
+    del book
     return name, author, language
 
 
 def cache_epub_cover(db_dir: str, cache: str, epub_path: str) -> str:
     print("cache_epub_cover of " + epub_path)
     book = epub.read_epub(epub_path)
-    cover_data = book.get_item_with_id('cover-image').get_content()
+    try:
+        cover_data = book.get_item_with_id('cover-image').get_content()
+    except:
+        return "unknown"
     del book
     cover_image = Image.open(BytesIO(cover_data))
     del cover_data
@@ -183,7 +192,10 @@ def cache_epub_cover(db_dir: str, cache: str, epub_path: str) -> str:
 def cache_video_cover(db_dir: str, cache: str, vid_path: str) -> str:
     print("cache_video_cover of " + vid_path)
 
-    video = cv2.VideoCapture(vid_path)
+    try:
+        video = cv2.VideoCapture(vid_path)
+    except:
+        return "unknown"
     total_frames = video.get(cv2.CAP_PROP_FRAME_COUNT)
     mid_frame = int(total_frames / 3)
     print(mid_frame, "/", total_frames)
@@ -202,15 +214,36 @@ def cache_video_cover(db_dir: str, cache: str, vid_path: str) -> str:
 
 
 def get_video_resolution(vid_path):
-    video = cv2.VideoCapture(vid_path)
+    try:
+        video = cv2.VideoCapture(vid_path)
+    except:
+        return 0, 0
     width = video.get(cv2.CAP_PROP_FRAME_WIDTH)  # float `width`
     height = video.get(cv2.CAP_PROP_FRAME_HEIGHT)  # float `height`
     res = (int(width), int(height))
     return res
 
 
+def is_valid_image(img_path):
+    try:
+        with Image.open(img_path) as img:
+            img.verify()
+            return True
+    except (IOError, SyntaxError):
+        return False
+
 def get_image_resolution(img_path):
-    img = Image.open(img_path)
-    width, height = img.size
-    res = (width, height)
+    # print("get img res")
+    res = (0, 0)
+    if not is_valid_image(img_path):
+        print("not valid image")
+        return res
+    try:
+        img = Image.open(img_path)
+        width, height = img.size
+        res = (int(width), int(height))
+    except:
+        print(img_path)
+        print("get img res failed: " + str(res))
+        return res
     return res

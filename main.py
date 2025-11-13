@@ -25,6 +25,7 @@ import os
 
 import database as db
 import util
+import qt_util
 
 ENTRY_LISTING_HEIGHT = 60
 DEFAULT_APP_ASSOCIATIONS = {"mp3": "vlc", "txt": "vim"}
@@ -81,6 +82,39 @@ class PreferencesDialog(QDialog):
         self.accept()
 
 
+class TagsDialog(QDialog):
+    def __init__(self, dictionary: dict, dict_title: str, parent=None):
+        super().__init__(parent)
+        self.dictionary = dictionary
+
+        self.setWindowTitle("Select " + dict_title)
+        QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        self.buttonBox = QDialogButtonBox(QBtn)
+        self.buttonBox.accepted.connect(self.apply)
+        self.buttonBox.rejected.connect(self.reject)
+
+        main_label = QLabel("Select" + dict_title + ": ")
+
+        label_apps = QLabel("App Associations")
+        str_apps = "\n".join([k + ": " + v for k, v in self.database.app_associations.items()])
+        print(str_apps)
+        self.text_apps = QTextEdit()
+        self.text_apps.setText(str_apps)
+
+        layout = QVBoxLayout()
+        layout.addWidget(row_name)
+        layout.addWidget(label_apps)
+        layout.addWidget(self.text_apps)
+        layout.addWidget(self.buttonBox)
+        self.setLayout(layout)
+
+    def apply(self):
+        self.database.name = self.input_name.text()
+        dict_apps = {a.split(":")[0].strip(): a.split(":")[1].strip() for a in (self.text_apps.toPlainText()
+                                                                                .replace("\"", "").replace("'", "").split("\n"))}
+        self.database.app_associations = dict_apps
+        self.database.save_as_file(self.database.file_dir)
+        self.accept()
 
 
 class EditDialog(QDialog):
@@ -450,7 +484,7 @@ class MainWindow(QMainWindow):
     def update_ui(self):
         print("Update UI")
         self.input_dbSearchbar.setText("")
-        self.label_dbName.setText(self.database.name)
+        self.label_dbName.setText(self.database.name + " (" + str(self.database.entry_count) + ")")
         self.update_entries_scroll(self.database.entries)
         self.update_entry_vbox()
 

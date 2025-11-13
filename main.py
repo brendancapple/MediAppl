@@ -6,19 +6,20 @@
 # Media Organizer for Local Files w/o Changing File Structures
 #
 #
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSize, QRect, QPoint
 from PyQt5.QtGui import QIcon, QKeySequence, QPixmap, QImage
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow,
     QWidget,
     QStatusBar, QToolBar, QAction,
-    QVBoxLayout, QHBoxLayout, QScrollArea,
+    QLayout, QVBoxLayout, QHBoxLayout, QScrollArea,
     QLabel, QCheckBox, QPushButton, QLineEdit, QTextEdit,
     QListWidget, QListWidgetItem, QAbstractItemView,
-    QDialog, QFileDialog, QInputDialog, QDialogButtonBox
+    QDialog, QFileDialog, QInputDialog, QDialogButtonBox, QSizePolicy
 )
 from PIL import Image
 from PIL import ImageQt
+from functools import partial
 import subprocess
 import sys
 import os
@@ -82,39 +83,143 @@ class PreferencesDialog(QDialog):
         self.accept()
 
 
+class FlowLayout(QLayout):
+    def __init__(self, parent=None, margin=0, spacing=-1):
+        super(FlowLayout, self).__init__(parent)
+
+        if parent is not None:
+            self.setContentsMargins(margin, margin, margin, margin)
+
+        self.setSpacing(spacing)
+
+        self.itemList = []
+
+    def __del__(self):
+        item = self.takeAt(0)
+        while item:
+            item = self.takeAt(0)
+
+    def addItem(self, item):
+        self.itemList.append(item)
+
+    def count(self):
+        return len(self.itemList)
+
+    def itemAt(self, index):
+        if index >= 0 and index < len(self.itemList):
+            return self.itemList[index]
+
+        return None
+
+    def takeAt(self, index):
+        if index >= 0 and index < len(self.itemList):
+            return self.itemList.pop(index)
+
+        return None
+
+    def expandingDirections(self):
+        return Qt.Orientations(Qt.Orientation(0))
+
+    def hasHeightForWidth(self):
+        return True
+
+    def heightForWidth(self, width):
+        height = self.doLayout(QRect(0, 0, width, 0), True)
+        return height
+
+    def setGeometry(self, rect):
+        super(FlowLayout, self).setGeometry(rect)
+        self.doLayout(rect, False)
+
+    def sizeHint(self):
+        return self.minimumSize()
+
+    def minimumSize(self):
+        size = QSize()
+
+        for item in self.itemList:
+            size = size.expandedTo(item.minimumSize())
+
+        margin, _, _, _ = self.getContentsMargins()
+
+        size += QSize(2 * margin, 2 * margin)
+        return size
+
+    def doLayout(self, rect, testOnly):
+        x = rect.x()
+        y = rect.y()
+        lineHeight = 0
+
+        for item in self.itemList:
+            wid = item.widget()
+            spaceX = self.spacing() + wid.style().layoutSpacing(QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Horizontal)
+            spaceY = self.spacing() + wid.style().layoutSpacing(QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Vertical)
+            nextX = x + item.sizeHint().width() + spaceX
+            if nextX - spaceX > rect.right() and lineHeight > 0:
+                x = rect.x()
+                y = y + lineHeight + spaceY
+                nextX = x + item.sizeHint().width() + spaceX
+                lineHeight = 0
+
+            if not testOnly:
+                item.setGeometry(QRect(QPoint(x, y), item.sizeHint()))
+
+            x = nextX
+            lineHeight = max(lineHeight, item.sizeHint().height())
+
+        return y + lineHeight - rect.y()
+
+
 class TagsDialog(QDialog):
     def __init__(self, dictionary: dict, dict_title: str, parent=None):
         super().__init__(parent)
         self.dictionary = dictionary
+        print(self.dictionary.keys())
+        self.keys = list(self.dictionary.keys())
+        self.output = set()
 
         self.setWindowTitle("Select " + dict_title)
         QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         self.buttonBox = QDialogButtonBox(QBtn)
-        self.buttonBox.accepted.connect(self.apply)
+        self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
+        print("window and buttons")
 
-        main_label = QLabel("Select" + dict_title + ": ")
-
-        label_apps = QLabel("App Associations")
-        str_apps = "\n".join([k + ": " + v for k, v in self.database.app_associations.items()])
-        print(str_apps)
-        self.text_apps = QTextEdit()
-        self.text_apps.setText(str_apps)
+        label_main = QLabel("Select" + dict_title + ": ")
+        self.label_output = QLabel("")
+        widget_key = QWidget()
+        layout_key = FlowLayout()
+        print("create flow")
+        for i in range(len(self.keys)):  # REPLACE WITH SELF.KEYS INDEXING
+            key = str(self.keys[i])
+            button_key = QPushButton(key)
+            button_key.setCheckable(True)
+            button_key.clicked.connect(partial(self.toggle_output, key))
+            layout_key.addWidget(button_key)
+        print("filled flow")
+        widget_key.setLayout(layout_key)
+        print("set layout")
 
         layout = QVBoxLayout()
-        layout.addWidget(row_name)
-        layout.addWidget(label_apps)
-        layout.addWidget(self.text_apps)
+        layout.addWidget(label_main)
+        layout.addWidget(self.label_output)
+        layout.addWidget(widget_key)
         layout.addWidget(self.buttonBox)
         self.setLayout(layout)
+        print("combined")
 
-    def apply(self):
-        self.database.name = self.input_name.text()
-        dict_apps = {a.split(":")[0].strip(): a.split(":")[1].strip() for a in (self.text_apps.toPlainText()
-                                                                                .replace("\"", "").replace("'", "").split("\n"))}
-        self.database.app_associations = dict_apps
-        self.database.save_as_file(self.database.file_dir)
-        self.accept()
+    def toggle_output(self, key: str):
+        if key in self.output:
+            self.output.remove(key)
+        else:
+            self.output.add(key)
+        self.label_output.setText(self.get_output())
+
+    def get_output(self) -> str:
+        output = ""
+        for key in list(self.output):
+            output = output + "[" + key + "] "
+        return output
 
 
 class EditDialog(QDialog):
@@ -306,6 +411,26 @@ class MainWindow(QMainWindow):
         button_preferences.setShortcut(QKeySequence("Ctrl+p"))
         button_preferences.triggered.connect(self.edit_preferences)
 
+        button_authors = QAction("Authors", self)
+        button_authors.setStatusTip("Filter Authors")
+        button_authors.triggered.connect(self.search_authors)
+
+        button_series = QAction("Series", self)
+        button_series.setStatusTip("Filter Series")
+        button_series.triggered.connect(self.search_series)
+
+        button_languages = QAction("Languages", self)
+        button_languages.setStatusTip("Filter Languages")
+        button_languages.triggered.connect(self.search_languages)
+
+        button_ratings = QAction("Ratings", self)
+        button_ratings.setStatusTip("Filter Age Ratings")
+        button_ratings.triggered.connect(self.search_ratings)
+
+        button_tags = QAction("Tags", self)
+        button_tags.setStatusTip("Filter Tags")
+        button_tags.triggered.connect(self.search_tags)
+
         # Create Toolbar
         toolbar = QToolBar("Toolbar")
         self.addToolBar(toolbar)
@@ -333,6 +458,13 @@ class MainWindow(QMainWindow):
         entry_menu = menu.addMenu("&Entry")
         entry_menu.addAction(button_open)
         entry_menu.addAction(button_edit)
+
+        filter_menu = menu.addMenu("&Filter")
+        filter_menu.addAction(button_authors)
+        filter_menu.addAction(button_series)
+        filter_menu.addAction(button_languages)
+        filter_menu.addAction(button_ratings)
+        filter_menu.addAction(button_tags)
 
         # Create Status Bar
         self.setStatusBar(QStatusBar(self))
@@ -459,6 +591,41 @@ class MainWindow(QMainWindow):
         else:
             output = self.database.search(query)
         self.update_entries_scroll(output)
+
+    def search_authors(self):
+        print("Search Authors")
+        tag_dialog = TagsDialog(self.database.authors, "Authors")
+        if tag_dialog.exec_():
+            self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " " + tag_dialog.get_output())
+            self.search_entries()
+
+    def search_series(self):
+        print("Search Series")
+        tag_dialog = TagsDialog(self.database.series, "Series")
+        if tag_dialog.exec_():
+            self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " " + tag_dialog.get_output())
+            self.search_entries()
+
+    def search_languages(self):
+        print("Search Languages")
+        tag_dialog = TagsDialog(self.database.languages, "Languages")
+        if tag_dialog.exec_():
+            self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " " + tag_dialog.get_output())
+            self.search_entries()
+
+    def search_ratings(self):
+        print("Search Age Ratings")
+        tag_dialog = TagsDialog(self.database.age_ratings, "Ratings")
+        if tag_dialog.exec_():
+            self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " " + tag_dialog.get_output())
+            self.search_entries()
+
+    def search_tags(self):
+        print("Search Tags")
+        tag_dialog = TagsDialog(self.database.tags, "Tags")
+        if tag_dialog.exec_():
+            self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " " + tag_dialog.get_output())
+            self.search_entries()
 
     def open_entry(self):
         print("Open Entry")

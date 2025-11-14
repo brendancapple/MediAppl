@@ -12,10 +12,10 @@ from PyQt5.QtWidgets import (
     QApplication, QMainWindow,
     QWidget,
     QStatusBar, QToolBar, QAction,
-    QLayout, QVBoxLayout, QHBoxLayout, QScrollArea,
+    QLayout, QVBoxLayout, QHBoxLayout,
     QLabel, QCheckBox, QPushButton, QLineEdit, QTextEdit,
-    QListWidget, QListWidgetItem, QAbstractItemView,
-    QDialog, QFileDialog, QInputDialog, QDialogButtonBox, QSizePolicy
+    QListWidget, QListWidgetItem, QAbstractItemView, QTabWidget,
+    QDialog, QFileDialog, QInputDialog, QDialogButtonBox
 )
 from PIL import Image
 from PIL import ImageQt
@@ -83,127 +83,120 @@ class PreferencesDialog(QDialog):
         self.accept()
 
 
-class FlowLayout(QLayout):
-    def __init__(self, parent=None, margin=0, spacing=-1):
-        super(FlowLayout, self).__init__(parent)
-
-        if parent is not None:
-            self.setContentsMargins(margin, margin, margin, margin)
-
-        self.setSpacing(spacing)
-
-        self.itemList = []
-
-    def __del__(self):
-        item = self.takeAt(0)
-        while item:
-            item = self.takeAt(0)
-
-    def addItem(self, item):
-        self.itemList.append(item)
-
-    def count(self):
-        return len(self.itemList)
-
-    def itemAt(self, index):
-        if index >= 0 and index < len(self.itemList):
-            return self.itemList[index]
-
-        return None
-
-    def takeAt(self, index):
-        if index >= 0 and index < len(self.itemList):
-            return self.itemList.pop(index)
-
-        return None
-
-    def expandingDirections(self):
-        return Qt.Orientations(Qt.Orientation(0))
-
-    def hasHeightForWidth(self):
-        return True
-
-    def heightForWidth(self, width):
-        height = self.doLayout(QRect(0, 0, width, 0), True)
-        return height
-
-    def setGeometry(self, rect):
-        super(FlowLayout, self).setGeometry(rect)
-        self.doLayout(rect, False)
-
-    def sizeHint(self):
-        return self.minimumSize()
-
-    def minimumSize(self):
-        size = QSize()
-
-        for item in self.itemList:
-            size = size.expandedTo(item.minimumSize())
-
-        margin, _, _, _ = self.getContentsMargins()
-
-        size += QSize(2 * margin, 2 * margin)
-        return size
-
-    def doLayout(self, rect, testOnly):
-        x = rect.x()
-        y = rect.y()
-        lineHeight = 0
-
-        for item in self.itemList:
-            wid = item.widget()
-            spaceX = self.spacing() + wid.style().layoutSpacing(QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Horizontal)
-            spaceY = self.spacing() + wid.style().layoutSpacing(QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Vertical)
-            nextX = x + item.sizeHint().width() + spaceX
-            if nextX - spaceX > rect.right() and lineHeight > 0:
-                x = rect.x()
-                y = y + lineHeight + spaceY
-                nextX = x + item.sizeHint().width() + spaceX
-                lineHeight = 0
-
-            if not testOnly:
-                item.setGeometry(QRect(QPoint(x, y), item.sizeHint()))
-
-            x = nextX
-            lineHeight = max(lineHeight, item.sizeHint().height())
-
-        return y + lineHeight - rect.y()
-
-
-class TagsDialog(QDialog):
-    def __init__(self, dictionary: dict, dict_title: str, parent=None):
+class FilterDialog(QDialog):
+    def __init__(self, database: db.Database, start_tab: int, parent=None):
         super().__init__(parent)
-        self.dictionary = dictionary
-        print(self.dictionary.keys())
-        self.keys = list(self.dictionary.keys())
+        self.database = database
+
+        self.authors = list(self.database.authors.keys())
+        self.series = list(self.database.series.keys())
+        self.languages = list(self.database.languages.keys())
+        self.ratings = list(self.database.age_ratings.keys())
+        self.tags = list(self.database.tags.keys())
+
         self.output = set()
 
-        self.setWindowTitle("Select " + dict_title)
+        self.setWindowTitle("Filter")
+        self.setMinimumWidth(620)
+
         QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         self.buttonBox = QDialogButtonBox(QBtn)
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
-        print("window and buttons")
 
-        label_main = QLabel("Select" + dict_title + ": ")
+        label_author = QLabel("Author")
+        label_series = QLabel("Series")
+        label_language = QLabel("Languages")
+        label_rating = QLabel("Ratings")
+        label_tag = QLabel("Tags")
         self.label_output = QLabel("")
-        widget_key = QWidget()
-        layout_key = FlowLayout()
-        print("create flow")
-        for i in range(len(self.keys)):  # REPLACE WITH SELF.KEYS INDEXING
-            key = str(self.keys[i])
+
+        widget_author = QWidget()
+        layout_author = qt_util.FlowLayout()
+        for key in self.authors:
             button_key = QPushButton(key)
             button_key.setCheckable(True)
             button_key.clicked.connect(partial(self.toggle_output, key))
-            layout_key.addWidget(button_key)
-        print("filled flow")
-        widget_key.setLayout(layout_key)
-        print("set layout")
+            layout_author.addWidget(button_key)
+        widget_author.setLayout(layout_author)
+
+        widget_series = QWidget()
+        layout_series = qt_util.FlowLayout()
+        for key in self.series:
+            button_key = QPushButton(key)
+            button_key.setCheckable(True)
+            button_key.clicked.connect(partial(self.toggle_output, key))
+            layout_series.addWidget(button_key)
+        widget_series.setLayout(layout_series)
+
+        widget_languages = QWidget()
+        layout_languages = qt_util.FlowLayout()
+        for key in self.languages:
+            button_key = QPushButton(key)
+            button_key.setCheckable(True)
+            button_key.clicked.connect(partial(self.toggle_output, key))
+            layout_languages.addWidget(button_key)
+        widget_languages.setLayout(layout_languages)
+
+        widget_ratings = QWidget()
+        layout_ratings = qt_util.FlowLayout()
+        for key in self.ratings:
+            button_key = QPushButton(key)
+            button_key.setCheckable(True)
+            button_key.clicked.connect(partial(self.toggle_output, key))
+            layout_ratings.addWidget(button_key)
+        widget_ratings.setLayout(layout_ratings)
+
+        widget_tags = QWidget()
+        layout_tags = qt_util.FlowLayout()
+        for key in self.tags:
+            button_key = QPushButton(key)
+            button_key.setCheckable(True)
+            button_key.clicked.connect(partial(self.toggle_output, key))
+            layout_tags.addWidget(button_key)
+        widget_tags.setLayout(layout_tags)
+
+        tab_author = QWidget()
+        tab_layout_author = QVBoxLayout()
+        tab_layout_author.addWidget(label_author)
+        tab_layout_author.addWidget(widget_author)
+        tab_author.setLayout(tab_layout_author)
+
+        tab_series = QWidget()
+        tab_layout_series = QVBoxLayout()
+        tab_layout_series.addWidget(label_series)
+        tab_layout_series.addWidget(widget_series)
+        tab_series.setLayout(tab_layout_series)
+
+        tab_languages = QWidget()
+        tab_layout_languages = QVBoxLayout()
+        tab_layout_languages.addWidget(label_language)
+        tab_layout_languages.addWidget(widget_languages)
+        tab_languages.setLayout(tab_layout_languages)
+
+        tab_ratings = QWidget()
+        tab_layout_ratings = QVBoxLayout()
+        tab_layout_ratings.addWidget(label_rating)
+        tab_layout_ratings.addWidget(widget_ratings)
+        tab_ratings.setLayout(tab_layout_ratings)
+
+        tab_tags = QWidget()
+        tab_layout_tags = QVBoxLayout()
+        tab_layout_tags.addWidget(label_tag)
+        tab_layout_tags.addWidget(widget_tags)
+        tab_tags.setLayout(tab_layout_tags)
+
+        tabs = QTabWidget()
+        tabs.addTab(tab_author, "Authors")
+        tabs.addTab(tab_series, "Series")
+        tabs.addTab(tab_languages, "Languages")
+        tabs.addTab(tab_ratings, "Ratings")
+        tabs.addTab(tab_tags, "Tags")
+        tabs.setCurrentIndex(start_tab)
 
         layout = QVBoxLayout()
-        layout.addWidget(label_main)
+        layout.addWidget(tabs)
         layout.addWidget(self.label_output)
-        layout.addWidget(widget_key)
         layout.addWidget(self.buttonBox)
         self.setLayout(layout)
         print("combined")
@@ -411,6 +404,11 @@ class MainWindow(QMainWindow):
         button_preferences.setShortcut(QKeySequence("Ctrl+p"))
         button_preferences.triggered.connect(self.edit_preferences)
 
+        button_filter = QAction("Filter", self)
+        button_filter.setStatusTip("Filter Entries")
+        button_filter.setShortcut(QKeySequence("Ctrl+f"))
+        button_filter.triggered.connect(self.search_filter)
+
         button_authors = QAction("Authors", self)
         button_authors.setStatusTip("Filter Authors")
         button_authors.triggered.connect(self.search_authors)
@@ -441,6 +439,8 @@ class MainWindow(QMainWindow):
         toolbar.addAction(button_open)
         toolbar.addAction(button_edit)
         toolbar.addSeparator()
+        toolbar.addAction(button_filter)
+        toolbar.addSeparator()
 
         # Create Menu
         menu = self.menuBar()
@@ -460,6 +460,8 @@ class MainWindow(QMainWindow):
         entry_menu.addAction(button_edit)
 
         filter_menu = menu.addMenu("&Filter")
+        filter_menu.addAction(button_filter)
+        filter_menu.addSeparator()
         filter_menu.addAction(button_authors)
         filter_menu.addAction(button_series)
         filter_menu.addAction(button_languages)
@@ -592,37 +594,44 @@ class MainWindow(QMainWindow):
             output = self.database.search(query)
         self.update_entries_scroll(output)
 
+    def search_filter(self):
+        print("Search Filter")
+        tag_dialog = FilterDialog(self.database, 0)
+        if tag_dialog.exec_():
+            self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " " + tag_dialog.get_output())
+            self.search_entries()
+
     def search_authors(self):
         print("Search Authors")
-        tag_dialog = TagsDialog(self.database.authors, "Authors")
+        tag_dialog = FilterDialog(self.database, 0)
         if tag_dialog.exec_():
             self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " " + tag_dialog.get_output())
             self.search_entries()
 
     def search_series(self):
         print("Search Series")
-        tag_dialog = TagsDialog(self.database.series, "Series")
+        tag_dialog = FilterDialog(self.database, 1)
         if tag_dialog.exec_():
             self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " " + tag_dialog.get_output())
             self.search_entries()
 
     def search_languages(self):
         print("Search Languages")
-        tag_dialog = TagsDialog(self.database.languages, "Languages")
+        tag_dialog = FilterDialog(self.database, 2)
         if tag_dialog.exec_():
             self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " " + tag_dialog.get_output())
             self.search_entries()
 
     def search_ratings(self):
         print("Search Age Ratings")
-        tag_dialog = TagsDialog(self.database.age_ratings, "Ratings")
+        tag_dialog = FilterDialog(self.database, 3)
         if tag_dialog.exec_():
             self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " " + tag_dialog.get_output())
             self.search_entries()
 
     def search_tags(self):
         print("Search Tags")
-        tag_dialog = TagsDialog(self.database.tags, "Tags")
+        tag_dialog = FilterDialog(self.database, 4)
         if tag_dialog.exec_():
             self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " " + tag_dialog.get_output())
             self.search_entries()
@@ -696,6 +705,7 @@ class MainWindow(QMainWindow):
         print("Update Entries")
         self.entries = entries
         print(self.entries)
+        self.label_dbName.setText(self.database.name + " (" + str(len(self.entries)) + ")")
         self.list_dbEntries.clear()
 
         for e in entries:

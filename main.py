@@ -157,30 +157,35 @@ class FilterDialog(QDialog):
         widget_tags.setLayout(layout_tags)
 
         tab_author = QWidget()
+        tab_author.setObjectName("tags_tab")
         tab_layout_author = QVBoxLayout()
         tab_layout_author.addWidget(label_author)
         tab_layout_author.addWidget(widget_author)
         tab_author.setLayout(tab_layout_author)
 
         tab_series = QWidget()
+        tab_series.setObjectName("tags_tab")
         tab_layout_series = QVBoxLayout()
         tab_layout_series.addWidget(label_series)
         tab_layout_series.addWidget(widget_series)
         tab_series.setLayout(tab_layout_series)
 
         tab_languages = QWidget()
+        tab_languages.setObjectName("tags_tab")
         tab_layout_languages = QVBoxLayout()
         tab_layout_languages.addWidget(label_language)
         tab_layout_languages.addWidget(widget_languages)
         tab_languages.setLayout(tab_layout_languages)
 
         tab_ratings = QWidget()
+        tab_ratings.setObjectName("tags_tab")
         tab_layout_ratings = QVBoxLayout()
         tab_layout_ratings.addWidget(label_rating)
         tab_layout_ratings.addWidget(widget_ratings)
         tab_ratings.setLayout(tab_layout_ratings)
 
         tab_tags = QWidget()
+        tab_tags.setObjectName("tags_tab")
         tab_layout_tags = QVBoxLayout()
         tab_layout_tags.addWidget(label_tag)
         tab_layout_tags.addWidget(widget_tags)
@@ -430,17 +435,17 @@ class MainWindow(QMainWindow):
         button_tags.triggered.connect(self.search_tags)
 
         # Create Toolbar
-        toolbar = QToolBar("Toolbar")
-        self.addToolBar(toolbar)
-
-        toolbar.addAction(button_load)
-        toolbar.addAction(button_save)
-        toolbar.addSeparator()
-        toolbar.addAction(button_open)
-        toolbar.addAction(button_edit)
-        toolbar.addSeparator()
-        toolbar.addAction(button_filter)
-        toolbar.addSeparator()
+        # toolbar = QToolBar("Toolbar")
+        # self.addToolBar(toolbar)
+        #
+        # toolbar.addAction(button_load)
+        # toolbar.addAction(button_save)
+        # toolbar.addSeparator()
+        # toolbar.addAction(button_open)
+        # toolbar.addAction(button_edit)
+        # toolbar.addSeparator()
+        # toolbar.addAction(button_filter)
+        # toolbar.addSeparator()
 
         # Create Menu
         menu = self.menuBar()
@@ -716,6 +721,11 @@ class MainWindow(QMainWindow):
 #
 # Initialize Window
 application = QApplication(sys.argv)
+
+with open("style.qss", "r") as file:
+    stylesheet = file.read()
+    print(stylesheet)
+    application.setStyleSheet(stylesheet)
 
 # Create Window
 window = MainWindow(application)

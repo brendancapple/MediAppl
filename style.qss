@@ -1,0 +1,131 @@
+MainWindow {
+    border-image: url(res/BG_Primary.png) 0 0 0 0 stretch stretch;
+}
+
+EditDialog {
+    border-image: url(res/BG_Edit.png) 0 0 0 0 stretch stretch;
+}
+
+PreferencesDialog {
+    border-image: url(res/BG_Edit.png) 0 0 0 0 stretch stretch;
+}
+
+FilterDialog {
+    border-image: url(res/BG_Filter.png) 0 0 0 0 stretch stretch;
+}
+
+QInputDialog {
+    border-image: url(res/BG_Filter.png) 0 0 0 0 stretch stretch;
+}
+
+QLabel {
+    color: white;
+}
+
+QMenuBar {
+    background-color: #501616;
+}
+
+QMenuBar::item {
+    color: white;
+    background-color: #501616;
+}
+
+QMenuBar::item:selected {
+    background-color: #832e3d;
+}
+
+QMenu {
+    background-color: #501616;
+}
+
+QMenu::item {
+    color: white;
+    background-color: #501616;
+}
+
+QMenu::item:selected {
+    background-color: #832e3d;
+}
+
+QToolBar {
+    text-color: white;
+    background-color: #501616;
+}
+
+QLineEdit {
+    color: white;
+    background-color: rgba(80, 22, 22, 0.8);
+    border: none;
+}
+
+QLineEdit:selected {
+    background-color: #832e3d;
+}
+
+QTextEdit {
+    color: white;
+    background-color: rgba(80, 22, 22, 0.8);
+    border: none;
+    box-shadow: 0vh 1vh 1vh rgba(0, 0, 0, 0.2), 0vh 1.5vh 2vh rgba(0, 0, 0, 0.2);
+}
+
+QTextEdit:selected {
+    background-color: #832e3d;
+}
+
+QPushButton {
+    color: white;
+    background-color: #501616;
+}
+
+QPushButton:hover {
+    color: white;
+    background-color: #832e3d;
+}
+
+QListWidget {
+    background-color: rgba(26, 13, 13, 0.5);
+}
+
+QListWidget::item {
+    color: white;
+}
+
+QListWidget::item:hover {
+    background-color: rgba(80, 22, 22, 0.8);
+}
+
+QScrollBar {
+    color: white;
+    background-color: #501616;
+}
+
+FlowLayout {
+    background-color: rgba(80, 22, 22, 0.8);
+}
+
+QTabWidget {
+    background-color: rgba(80, 22, 22, 0.8);
+}
+
+QTabWidget::pane {
+    background-color: rgba(80, 22, 22, 0.8);
+}
+
+QTabWidget::tab {
+    background-color: rgba(80, 22, 22, 0.8);
+}
+
+QTabBar::tab {
+    color: white;
+    background-color: rgba(26, 13, 13, 0.5);
+}
+
+QTabBar::tab:selected {
+    background-color: rgba(80, 22, 22, 0.8);
+}
+
+#tags_tab {
+    background-color: rgba(26, 13, 13, 1.0);
+}

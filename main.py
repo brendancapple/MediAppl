@@ -6,7 +6,7 @@
 # Media Organizer for Local Files w/o Changing File Structures
 #
 #
-from PyQt5.QtCore import Qt, QSize, QRect, QPoint
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QKeySequence, QPixmap, QImage
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow,
@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
     QStatusBar, QToolBar, QAction,
     QLayout, QVBoxLayout, QHBoxLayout,
     QLabel, QCheckBox, QPushButton, QLineEdit, QTextEdit,
-    QListWidget, QListWidgetItem, QAbstractItemView, QTabWidget,
+    QListWidget, QListWidgetItem, QAbstractItemView, QTabWidget, QScrollArea,
     QDialog, QFileDialog, QInputDialog, QDialogButtonBox
 )
 from PIL import Image
@@ -97,7 +97,8 @@ class FilterDialog(QDialog):
         self.output = set()
 
         self.setWindowTitle("Filter")
-        self.setMinimumWidth(620)
+        self.setFixedWidth(720)
+        self.setFixedHeight(460)
 
         QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         self.buttonBox = QDialogButtonBox(QBtn)
@@ -111,7 +112,10 @@ class FilterDialog(QDialog):
         label_tag = QLabel("Tags")
         self.label_output = QLabel("")
 
+        scroll_author = QScrollArea()
         widget_author = QWidget()
+        widget_author.setObjectName("tags_tab")
+        widget_author.setMinimumWidth(650)
         layout_author = qt_util.FlowLayout()
         for key in self.authors:
             button_key = QPushButton(key)
@@ -119,8 +123,12 @@ class FilterDialog(QDialog):
             button_key.clicked.connect(partial(self.toggle_output, key))
             layout_author.addWidget(button_key)
         widget_author.setLayout(layout_author)
+        scroll_author.setWidget(widget_author)
 
+        scroll_series = QScrollArea()
         widget_series = QWidget()
+        widget_series.setObjectName("tags_tab")
+        widget_series.setMinimumWidth(650)
         layout_series = qt_util.FlowLayout()
         for key in self.series:
             button_key = QPushButton(key)
@@ -128,8 +136,12 @@ class FilterDialog(QDialog):
             button_key.clicked.connect(partial(self.toggle_output, key))
             layout_series.addWidget(button_key)
         widget_series.setLayout(layout_series)
+        scroll_series.setWidget(widget_series)
 
+        scroll_languages = QScrollArea()
         widget_languages = QWidget()
+        widget_languages.setObjectName("tags_tab")
+        widget_languages.setMinimumWidth(650)
         layout_languages = qt_util.FlowLayout()
         for key in self.languages:
             button_key = QPushButton(key)
@@ -137,8 +149,12 @@ class FilterDialog(QDialog):
             button_key.clicked.connect(partial(self.toggle_output, key))
             layout_languages.addWidget(button_key)
         widget_languages.setLayout(layout_languages)
+        scroll_languages.setWidget(widget_languages)
 
+        scroll_ratings = QScrollArea()
         widget_ratings = QWidget()
+        widget_ratings.setObjectName("tags_tab")
+        widget_ratings.setMinimumWidth(650)
         layout_ratings = qt_util.FlowLayout()
         for key in self.ratings:
             button_key = QPushButton(key)
@@ -146,8 +162,12 @@ class FilterDialog(QDialog):
             button_key.clicked.connect(partial(self.toggle_output, key))
             layout_ratings.addWidget(button_key)
         widget_ratings.setLayout(layout_ratings)
+        scroll_ratings.setWidget(widget_ratings)
 
+        scroll_tags = QScrollArea()
         widget_tags = QWidget()
+        widget_tags.setObjectName("tags_tab")
+        widget_tags.setMinimumWidth(650)
         layout_tags = qt_util.FlowLayout()
         for key in self.tags:
             button_key = QPushButton(key)
@@ -155,40 +175,41 @@ class FilterDialog(QDialog):
             button_key.clicked.connect(partial(self.toggle_output, key))
             layout_tags.addWidget(button_key)
         widget_tags.setLayout(layout_tags)
+        scroll_tags.setWidget(widget_tags)
 
         tab_author = QWidget()
         tab_author.setObjectName("tags_tab")
         tab_layout_author = QVBoxLayout()
         tab_layout_author.addWidget(label_author)
-        tab_layout_author.addWidget(widget_author)
+        tab_layout_author.addWidget(scroll_author)
         tab_author.setLayout(tab_layout_author)
 
         tab_series = QWidget()
         tab_series.setObjectName("tags_tab")
         tab_layout_series = QVBoxLayout()
         tab_layout_series.addWidget(label_series)
-        tab_layout_series.addWidget(widget_series)
+        tab_layout_series.addWidget(scroll_series)
         tab_series.setLayout(tab_layout_series)
 
         tab_languages = QWidget()
         tab_languages.setObjectName("tags_tab")
         tab_layout_languages = QVBoxLayout()
         tab_layout_languages.addWidget(label_language)
-        tab_layout_languages.addWidget(widget_languages)
+        tab_layout_languages.addWidget(scroll_languages)
         tab_languages.setLayout(tab_layout_languages)
 
         tab_ratings = QWidget()
         tab_ratings.setObjectName("tags_tab")
         tab_layout_ratings = QVBoxLayout()
         tab_layout_ratings.addWidget(label_rating)
-        tab_layout_ratings.addWidget(widget_ratings)
+        tab_layout_ratings.addWidget(scroll_ratings)
         tab_ratings.setLayout(tab_layout_ratings)
 
         tab_tags = QWidget()
         tab_tags.setObjectName("tags_tab")
         tab_layout_tags = QVBoxLayout()
         tab_layout_tags.addWidget(label_tag)
-        tab_layout_tags.addWidget(widget_tags)
+        tab_layout_tags.addWidget(scroll_tags)
         tab_tags.setLayout(tab_layout_tags)
 
         tabs = QTabWidget()
@@ -367,6 +388,7 @@ class MainWindow(QMainWindow):
         self.entry: db.Entry = self.database.entries[0]
 
         self.setWindowTitle("MediAppl")
+        self.setWindowIcon(QIcon('res/Icon.png'))
 
         # Create Actions
         button_new = QAction("New", self)

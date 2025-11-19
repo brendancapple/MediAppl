@@ -144,7 +144,7 @@ class Database:
             self.filepaths[entry.path] = entry
             self.directories.add(entry.path, "/", entry)
             for tag in entry.tags:
-                util.dictionary_list_add(self.tags, tag, entry)
+                util.dictionary_list_add(self.tags, tag.lower(), entry)
             if "." in entry.path:
                 util.dictionary_list_add(self.extensions, entry.path[entry.path.rfind(".")+1:], entry)
 

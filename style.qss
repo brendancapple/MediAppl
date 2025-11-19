@@ -18,6 +18,10 @@ QInputDialog {
     border-image: url(res/BG_Filter.png) 0 0 0 0 stretch stretch;
 }
 
+QWidget {
+    background-color: none;
+}
+
 QLabel {
     color: white;
 }
@@ -96,13 +100,17 @@ QListWidget::item:hover {
     background-color: rgba(80, 22, 22, 0.8);
 }
 
-QScrollBar {
-    color: white;
+FlowLayout {
     background-color: #501616;
 }
 
-FlowLayout {
-    background-color: rgba(80, 22, 22, 0.8);
+QScrollArea {
+    background-color: rgba(80, 22, 22, 0.0);
+    border: none;
+}
+
+QScrollArea::item {
+    background-color: rgba(80, 22, 22, 1.0);
 }
 
 QTabWidget {
@@ -123,9 +131,14 @@ QTabBar::tab {
 }
 
 QTabBar::tab:selected {
-    background-color: rgba(80, 22, 22, 0.8);
+    background-color: rgba(80, 22, 22, 1.0);
 }
 
 #tags_tab {
     background-color: rgba(26, 13, 13, 1.0);
+}
+
+QScrollBar {
+    height: 0px;
+    width: 0px;
 }

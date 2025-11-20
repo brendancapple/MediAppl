@@ -383,7 +383,7 @@ class MainWindow(QMainWindow):
     def __init__(self, app: QApplication):
         super().__init__()
         self.screen = app.primaryScreen()
-        self.database: db.Database = db.Database("test.appl")
+        self.database: db.Database = db.Database("default.appl")
         self.entries = []
         self.entry: db.Entry = self.database.entries[0]
 

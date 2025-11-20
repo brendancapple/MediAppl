@@ -2,3 +2,4 @@ PyQt5
 pillow==9.5.0
 ebooklib
 opencv-python
+pyinstaller

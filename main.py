@@ -619,7 +619,9 @@ class MainWindow(QMainWindow):
             output = self.database.entries
         else:
             output = self.database.search(query)
+        print("Update entries")
         self.update_entries_scroll(output)
+        print("Updated entries")
 
     def search_filter(self):
         print("Search Filter")
@@ -722,7 +724,7 @@ class MainWindow(QMainWindow):
             return True
 
         image = QPixmap("res/placeholder.png").scaled(int(self.screen.size().width()*0.25),
-                                                          int(self.screen.size().height()*0.25), Qt.KeepAspectRatio)
+                                                      int(self.screen.size().height()*0.25), Qt.KeepAspectRatio)
         self.label_entryCover.setPixmap(image)
         self.label_entryCover.setScaledContents(True)
         # print("Unknown Cover")
@@ -733,11 +735,14 @@ class MainWindow(QMainWindow):
         self.entries = entries
         print(self.entries)
         self.label_dbName.setText(self.database.name + " (" + str(len(self.entries)) + ")")
+        print("Label Updated")
         self.list_dbEntries.clear()
+        print("Entries cleared")
 
         for e in entries:
             widget = EntryListing(self, e)
             self.list_dbEntries.addItem(widget)
+        print("entry list updated")
 
 
 #

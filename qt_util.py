@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QPoint, QRect, QSize, Qt
+from PyQt5.QtCore import QPoint, QRect, QSize, Qt, pyqtSignal
 from PyQt5.QtWidgets import QLayout, QPushButton, QSizePolicy, QWidget, QLabel, QTextEdit, QVBoxLayout, QDialog, \
     QDialogButtonBox, QScrollArea, QTabWidget, QLineEdit, QHBoxLayout, QFileDialog, QListWidgetItem
 from functools import partial
@@ -101,6 +101,12 @@ class EntryListing(QListWidgetItem):
         self.setText("[" + self.entry.age_rating + "] " + self.entry.author + ": " + self.entry.name)
 
 
+class ClickLabel(QLabel):
+    clicked = pyqtSignal()
+
+    def mousePressEvent(self, ev):
+        self.clicked.emit()
+
 class PreferencesDialog(QDialog):
     def __init__(self, database: db.Database, parent=None):
         super().__init__(parent)
@@ -137,7 +143,8 @@ class PreferencesDialog(QDialog):
     def apply(self):
         self.database.name = self.input_name.text()
         dict_apps = {a.split(":")[0].strip(): a.split(":")[1].strip() for a in (self.text_apps.toPlainText()
-                                                                                .replace("\"", "").replace("'", "").split("\n"))}
+                                                                                .replace("\"", "")
+                                                                                .replace("'", "").split("\n"))}
         self.database.app_associations = dict_apps
         self.database.save_as_file(self.database.file_dir)
         self.accept()

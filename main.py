@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import (
     QListWidget, QListWidgetItem, QAbstractItemView,
     QDialog, QFileDialog, QInputDialog,
 )
+from functools import partial
 import subprocess
 import sys
 import os
@@ -105,19 +106,6 @@ class MainWindow(QMainWindow):
         button_tags.setStatusTip("Filter Tags")
         button_tags.triggered.connect(self.search_tags)
 
-        # Create Toolbar
-        # toolbar = QToolBar("Toolbar")
-        # self.addToolBar(toolbar)
-        #
-        # toolbar.addAction(button_load)
-        # toolbar.addAction(button_save)
-        # toolbar.addSeparator()
-        # toolbar.addAction(button_open)
-        # toolbar.addAction(button_edit)
-        # toolbar.addSeparator()
-        # toolbar.addAction(button_filter)
-        # toolbar.addSeparator()
-
         # Create Menu
         menu = self.menuBar()
 
@@ -155,7 +143,6 @@ class MainWindow(QMainWindow):
 
         self.list_dbEntries = QListWidget()
         self.list_dbEntries.setSelectionMode(QAbstractItemView.SingleSelection)
-        # self.list_dbEntries.itemClicked.connect(self.switch_entry)
         self.list_dbEntries.itemActivated.connect(self.open_entry)
         self.list_dbEntries.itemDoubleClicked.connect(self.open_entry)
         self.list_dbEntries.itemSelectionChanged.connect(self.switch_entry_keyboard)
@@ -172,16 +159,27 @@ class MainWindow(QMainWindow):
         # self.label_entryCover.setScaledContents(True)
         self.label_entryCover.resize(500, 500)
 
-        self.label_entryName = QLabel("Name Unknown")
-        self.label_entryFilepath = QLabel("(Path Unknown)")
+        self.label_entryName = qt_util.ClickLabel("Name Unknown")
+        self.label_entryFilepath = qt_util.ClickLabel("(Path Unknown)")
+        self.label_entryAuthor = qt_util.ClickLabel("Author: Unknown")
+        self.label_entrySeries = qt_util.ClickLabel("Series: Unknown, 0")
+        self.label_entryLanguage = qt_util.ClickLabel("Language: Unknown [Unrated]")
+        self.label_entryRelease = qt_util.ClickLabel("Release: Unknown")
+        self.label_entryResolution = qt_util.ClickLabel("Resolution: 0x0")
+        self.label_entryTags = qt_util.ClickLabel("[]")
+        self.label_entryName.setWordWrap(True)
         self.label_entryFilepath.setWordWrap(True)
-        self.label_entryAuthor = QLabel("Author: Unknown")
-        self.label_entrySeries = QLabel("Series: Unknown, 0")
-        self.label_entryLanguage = QLabel("Language: Unknown [Unrated]")
-        self.label_entryRelease = QLabel("Release: Unknown")
-        self.label_entryResolution = QLabel("Resolution: 0x0")
-        self.label_entryTags = QLabel("[]")
+        self.label_entryAuthor.setWordWrap(True)
+        self.label_entrySeries.setWordWrap(True)
+        self.label_entryLanguage.setWordWrap(True)
+        self.label_entryRelease.setWordWrap(True)
+        self.label_entryResolution.setWordWrap(True)
         self.label_entryTags.setWordWrap(True)
+        self.label_entryName.clicked.connect(partial(self.search_selection, 0))
+        self.label_entryAuthor.clicked.connect(partial(self.search_selection, 1))
+        self.label_entrySeries.clicked.connect(partial(self.search_selection, 2))
+        self.label_entryLanguage.clicked.connect(partial(self.search_selection, 3))
+        # self.label_entryTags.clicked.connect()
         button_entryOpen = QPushButton("Open")
         button_entryOpen.clicked.connect(self.open_entry)
         button_entryEdit = QPushButton("Edit")
@@ -313,6 +311,19 @@ class MainWindow(QMainWindow):
         if tag_dialog.exec_():
             self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " " + tag_dialog.get_output())
             self.search_entries()
+
+    def search_selection(self, category: int):
+        match category:
+            case 0:
+                self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " " + self.entry.name)
+            case 1:
+                self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " [" + self.entry.author + "]")
+            case 2:
+                self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " [" + self.entry.series + "]")
+            case 3:
+                self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " [" + self.entry.language + "]")
+
+        self.search_entries()
 
     def open_entry(self):
         print("Open Entry")

@@ -1,5 +1,5 @@
 PyQt5
-pillow==9.5.0
+numpy
 ebooklib
 opencv-python
 pyinstaller

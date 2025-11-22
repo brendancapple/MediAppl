@@ -1,10 +1,8 @@
 import os.path
 
 import cv2
+import numpy as np
 from ebooklib import epub
-from PIL import Image
-from io import BytesIO
-# import os
 
 LANGUAGE_CODES = {
     'en': 'English',
@@ -143,16 +141,6 @@ def hash_string(string: str) -> int:
 
 
 # Cover Grabbing
-def get_epub_cover(epub_path: str):
-    print("get_epub_cover of " + epub_path)
-    book = epub.read_epub(epub_path)
-    cover_data = book.get_item_with_id('cover-image').get_content()
-    del book
-    cover_image = Image.open(BytesIO(cover_data))
-    del cover_data
-    return cover_image
-
-
 def get_epub_metadata(epub_path: str):
     print("get_epub_metadata of " + epub_path)
     try:
@@ -179,7 +167,7 @@ def cache_epub_cover(db_dir: str, cache: str, epub_path: str) -> str:
     except:
         return "unknown"
     del book
-    cover_image = Image.open(BytesIO(cover_data))
+    nparr = np.frombuffer(cover_data, np.uint8)
     del cover_data
 
     if not os.path.exists(db_dir + cache):
@@ -187,7 +175,8 @@ def cache_epub_cover(db_dir: str, cache: str, epub_path: str) -> str:
     epub_name = epub_path[epub_path.rfind("/")+1:epub_path.rfind(".")]
     image_path = db_dir + cache + "/" + epub_name + ".jpg"
     print("Cached Image Path " + image_path)
-    cover_image.save(image_path)
+    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    cv2.imwrite(image_path, image)
     return image_path
 
 
@@ -228,25 +217,15 @@ def get_video_resolution(vid_path):
     return res
 
 
-def is_valid_image(img_path):
-    try:
-        with Image.open(img_path) as img:
-            img.verify()
-            return True
-    except (IOError, SyntaxError):
-        return False
-
-
 def get_image_resolution(img_path):
-    # print("get img res")
+    print("get img res")
     res = (0, 0)
-    if not is_valid_image(img_path):
-        print("not valid image")
-        return res
     try:
-        img = Image.open(img_path)
-        width, height = img.size
-        res = (int(width), int(height))
+        image = cv2.imread(img_path)
+        print("read")
+        shape = image.shape
+        print("unwrap")
+        res = (int(shape[1]), int(shape[0]))
     except:
         print(img_path)
         print("get img res failed: " + str(res))

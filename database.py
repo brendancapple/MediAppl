@@ -303,7 +303,7 @@ class Database:
 
     def search(self, query: str):
         query = query.strip()
-        words = util.powerset(query.split(" "))[1:]
+        words = list(util.powerset(query.split(" "))[1:])
         print(words)
 
         output_dict = dict()
@@ -314,7 +314,7 @@ class Database:
 
             if word.count("[") > 1:
                 continue
-            filtered = "[" in word and "]" in word
+            filtered = "[" == word[0] and "]" == word[-1]
             temp_filtered_set = set()
             word = word.replace("[", "").replace("]", "")
 

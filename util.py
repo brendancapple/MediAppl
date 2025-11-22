@@ -90,7 +90,7 @@ def dictionary_list_add(d: dict, k, e):
     d[k].append(e)
 
 
-def dictionary_list_remove(d:dict, k, e):
+def dictionary_list_remove(d: dict, k, e):
     if k not in d:
         return
     if e not in d[k]:
@@ -99,10 +99,11 @@ def dictionary_list_remove(d:dict, k, e):
     if len(d[k]) <= 0:
         d.pop(k)
 
+
 # Set Operations
 def powerset(s):
     n = len(s)
-    result = []
+    result = set()
 
     # Iterate through all subsets (represented by 0 to 2^n - 1)
     for i in range(1 << n):
@@ -112,9 +113,10 @@ def powerset(s):
             if i & (1 << j):
                 subset += " " + s[j]
 
-        result.append(subset.strip())
+        result.add(subset.strip())
 
-    return result
+    return list(result)
+
 
 # Hashing
 def hash_string(string: str) -> int:
@@ -231,6 +233,7 @@ def is_valid_image(img_path):
             return True
     except (IOError, SyntaxError):
         return False
+
 
 def get_image_resolution(img_path):
     # print("get img res")

@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QLayout, QPushButton, QSizePolicy, QWidget, QLabel, 
 from functools import partial
 
 import database as db
+import util
 
 
 class FlowLayout(QLayout):
@@ -414,6 +415,9 @@ class EditDialog(QDialog):
         row_tags = QWidget()
         row_tags.setLayout(layout_tags)
 
+        button_generate = QPushButton("Generate")
+        button_generate.clicked.connect(self.generate_metadata)
+
         layout = QVBoxLayout()
         layout.addWidget(message)
         layout.addWidget(row_name)
@@ -424,6 +428,7 @@ class EditDialog(QDialog):
         layout.addWidget(row_release)
         layout.addWidget(row_resolution)
         layout.addWidget(row_tags)
+        layout.addWidget(button_generate)
         layout.addWidget(self.buttonBox)
 
         self.setLayout(layout)
@@ -436,6 +441,47 @@ class EditDialog(QDialog):
         if dialog.exec_():
             filepath = dialog.selectedFiles()[0]
             self.input_cover.setText(filepath)
+
+    def generate_metadata(self):
+        print("Generate Metadata")
+        if "." not in self.entry.path:
+            return
+        ext = self.entry.path[self.entry.path.rfind(".")+1:].lower()
+        entry_cover = ""
+        entry_name = ""
+        entry_author = ""
+        entry_lang = ""
+        entry_res = (-1, -1)
+        print(ext)
+        print(db.SUPPORTED_IMAGE_FORMATS)
+        if ext == "epub":
+            entry_cover = util.cache_epub_cover(self.database.db_dir, db.CACHE_DIR, self.database.db_dir + self.entry.path)
+            entry_name, entry_author, entry_lang = util.get_epub_metadata(self.database.db_dir + self.entry.path)
+        elif ext in db.SUPPORTED_IMAGE_FORMATS:
+            print(self.database.db_dir+self.entry.path)
+            entry_res = util.get_image_resolution(self.database.db_dir + self.entry.path)
+            print(entry_res)
+        elif ext in db.SUPPORTED_VIDEO_FORMATS:
+            entry_cover = util.cache_video_cover(self.database.db_dir, db.CACHE_DIR, self.database.db_dir + self.entry.path)
+            entry_res = util.get_video_resolution(self.database.db_dir + self.entry.path)
+
+        if entry_cover != "":
+            self.input_cover.setText(entry_cover)
+            print(self.input_cover.text())
+        if entry_author != "":
+            self.input_author.setText(entry_author)
+            print(self.input_author.text())
+        if entry_name != "":
+            self.input_name.setText(entry_name)
+            print(self.input_name.text())
+        if entry_lang != "":
+            self.input_language.setText(entry_lang)
+            print(self.input_language.text())
+        if entry_res[0] >= 0:
+            self.input_res1.setText(str(entry_res[0]))
+            self.input_res2.setText(str(entry_res[1]))
+            print(self.input_res1.text())
+            print(self.input_res2.text())
 
     def apply(self):
         self.database.set_name(self.entry, self.input_name.text())

@@ -458,10 +458,10 @@ class EditDialog(QDialog):
             entry_cover = util.cache_epub_cover(self.database.db_dir, db.CACHE_DIR, self.database.db_dir + self.entry.path)
             entry_name, entry_author, entry_lang = util.get_epub_metadata(self.database.db_dir + self.entry.path)
         elif ext in db.SUPPORTED_IMAGE_FORMATS:
-            print(self.database.db_dir+self.entry.path)
             entry_res = util.get_image_resolution(self.database.db_dir + self.entry.path)
             print(entry_res)
         elif ext in db.SUPPORTED_VIDEO_FORMATS:
+            print(self.database.db_dir+self.entry.path)
             entry_cover = util.cache_video_cover(self.database.db_dir, db.CACHE_DIR, self.database.db_dir + self.entry.path)
             entry_res = util.get_video_resolution(self.database.db_dir + self.entry.path)
 

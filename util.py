@@ -199,11 +199,12 @@ def cache_video_cover(db_dir: str, cache: str, vid_path: str) -> str:
     except:
         return "unknown"
     total_frames = video.get(cv2.CAP_PROP_FRAME_COUNT)
-    mid_frame = int(total_frames / 3)
+    mid_frame = int(total_frames/3)
     print(mid_frame, "/", total_frames)
 
-    video.set(cv2.CAP_PROP_FRAME_COUNT, mid_frame)
+    video.set(cv2.CAP_PROP_POS_FRAMES, mid_frame)
     ret, frame = video.read()
+    print(ret)
 
     if not os.path.exists(db_dir + cache):
         os.mkdir(db_dir + cache)
@@ -211,6 +212,7 @@ def cache_video_cover(db_dir: str, cache: str, vid_path: str) -> str:
     image_path = db_dir + cache + "/" + epub_name + ".jpg"
     print("Cached Image Path " + image_path)
     cv2.imwrite(image_path, frame)
+    video.release()
     del video
     return image_path
 

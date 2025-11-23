@@ -1,7 +1,4 @@
-import threading
-import time
-
-from PyQt5.QtCore import QPoint, QRect, QSize, Qt, pyqtSignal, QThread, pyqtSlot
+from PyQt5.QtCore import QPoint, QRect, QSize, Qt, pyqtSignal,
 from PyQt5.QtWidgets import QLayout, QPushButton, QSizePolicy, QWidget, QLabel, QTextEdit, QVBoxLayout, QDialog, \
     QDialogButtonBox, QScrollArea, QTabWidget, QLineEdit, QHBoxLayout, QFileDialog, QListWidgetItem, QProgressBar
 from functools import partial

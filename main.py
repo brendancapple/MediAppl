@@ -6,9 +6,6 @@
 # Media Organizer for Local Files w/o Changing File Structures
 #
 #
-import threading
-import time
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QKeySequence, QPixmap, QImage
 from PyQt5.QtWidgets import (

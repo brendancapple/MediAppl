@@ -1,7 +1,6 @@
 import os
 
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QProgressBar, QWidget, QLabel
+from PyQt5.QtWidgets import QProgressBar, QLabel
 
 import util
 

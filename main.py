@@ -6,6 +6,9 @@
 # Media Organizer for Local Files w/o Changing File Structures
 #
 #
+import threading
+import time
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QKeySequence, QPixmap, QImage
 from PyQt5.QtWidgets import (
@@ -223,7 +226,9 @@ class MainWindow(QMainWindow):
         with open(appl_path, "w", encoding="utf-8") as file:
             file.write(name+"\n"+db_path+"/\n\n"+str(DEFAULT_APP_ASSOCIATIONS)+"\n0\n")
         self.database = db.Database(appl_path)
-        self.database.load_files()
+        # self.database.load_files()
+        loading_dialog = qt_util.LoadingDialog(self.database)
+        loading_dialog.exec()
         self.database.save_as_file(appl_path)
         self.update_ui()
 
@@ -237,6 +242,7 @@ class MainWindow(QMainWindow):
             self.database = db.Database(filepath)
             self.database.clean_entries()
             self.entry = self.database.entries[0]
+            print("pre update")
             self.update_ui()
 
     def save_database(self):
@@ -255,7 +261,9 @@ class MainWindow(QMainWindow):
 
     def reload_database(self):
         print("Reload Database From Disk")
-        self.database.load_files()
+        # self.database.load_files()
+        loading_dialog = qt_util.LoadingDialog(self.database)
+        loading_dialog.exec()
         self.update_ui()
 
     def search_entries(self):

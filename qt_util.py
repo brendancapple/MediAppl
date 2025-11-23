@@ -1,6 +1,9 @@
-from PyQt5.QtCore import QPoint, QRect, QSize, Qt, pyqtSignal
+import threading
+import time
+
+from PyQt5.QtCore import QPoint, QRect, QSize, Qt, pyqtSignal, QThread, pyqtSlot
 from PyQt5.QtWidgets import QLayout, QPushButton, QSizePolicy, QWidget, QLabel, QTextEdit, QVBoxLayout, QDialog, \
-    QDialogButtonBox, QScrollArea, QTabWidget, QLineEdit, QHBoxLayout, QFileDialog, QListWidgetItem
+    QDialogButtonBox, QScrollArea, QTabWidget, QLineEdit, QHBoxLayout, QFileDialog, QListWidgetItem, QProgressBar
 from functools import partial
 
 import database as db
@@ -93,6 +96,7 @@ class FlowLayout(QLayout):
 
         return y + lineHeight - rect.y()
 
+
 class EntryListing(QListWidgetItem):
     def __init__(self, main_window, entry: db.Entry):
         super().__init__()
@@ -107,6 +111,33 @@ class ClickLabel(QLabel):
 
     def mousePressEvent(self, ev):
         self.clicked.emit()
+
+
+class LoadingDialog(QDialog):
+    def __init__(self, database: db.Database, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Loading")
+        self.setMinimumWidth(400)
+        self.database = database
+
+        self.bar = QProgressBar()
+        self.bar.setObjectName("tags_tab")
+        self.label = QLabel("")
+        self.button = QPushButton("Load Files")
+        self.button.clicked.connect(self.start)
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.bar)
+        self.layout.addWidget(self.label)
+        self.layout.addWidget(self.button)
+        self.setLayout(self.layout)
+        print("create_layout")
+
+    def start(self):
+        print("already")
+        print("start_loading")
+        self.database.load_files(self.bar, self.label)
+        self.accept()
+
 
 class PreferencesDialog(QDialog):
     def __init__(self, database: db.Database, parent=None):

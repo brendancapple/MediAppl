@@ -1,4 +1,8 @@
 import os
+
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QProgressBar, QWidget, QLabel
+
 import util
 
 CACHE_DIR = "_cache"
@@ -115,6 +119,9 @@ class Database:
         self.extensions = dict()
         self.directories = util.Trie()
 
+        self.loading_total = 0
+        self.loading_current = 0
+
         # Items
         self.entries: [Entry] = []
         for e in entries:
@@ -166,7 +173,7 @@ class Database:
             if not os.path.exists(self.db_dir + e.path):
                 self.remove_entry(e)
 
-    def load_files(self):
+    def load_files(self, bar: QProgressBar, label: QLabel):
         # print(os.listdir(self.db_dir))
         all_files = []
         for root, _, files in os.walk(self.db_dir):
@@ -174,7 +181,18 @@ class Database:
                 all_files.append(os.path.join(root, file))
         print(all_files)
 
+        total_files = len(all_files)
+        print(total_files)
+        current_file = 0
+        if bar is not None:
+            print("preset")
+            bar.setMaximum(total_files)
+            bar.setValue(current_file)
+            label.setText(str(current_file)+"/"+str(total_files))
+            print("post-set")
+
         for file in all_files:
+            current_file += 1
             file = file.replace("\\", "/")
             # print(file)
             if file[len(self.db_dir):][:len(CACHE_DIR)] == CACHE_DIR:
@@ -210,6 +228,9 @@ class Database:
                           entry_res, ["unknown"])
 
             self.add_entry(entry)
+            if bar is not None:
+                bar.setValue(current_file)
+                label.setText(str(current_file) + "/" + str(total_files))
         print("FILES LOADED")
 
     def save_as_file(self, filepath: str):

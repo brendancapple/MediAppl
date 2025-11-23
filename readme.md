@@ -8,6 +8,8 @@ on user-generated tags and metadata.
 This essentially emulates the functionality of a streaming service's
 website, without algorithmic suggestions. 
 
+![Main Interface Screenshot](demo.png "Screenshot of MediAppl's Main Interface")
+
 There is some basic automatic metadata detection, 
 such as cover selection for image files, epubs, and videos. 
 Furthermore, folders with numbered files, such animation frames,
@@ -97,7 +99,7 @@ in the search bar.
 For those who do not feel comfortable downloading a pre-built binary
 1. Download source code with `git clone https://github.com/brendancapple/MediAppl.git`
 2. Create a venv virtual environment in the source folder
-3. Run `pip install -r dependencies.txt`
+3. Run `pip install -r requirements.txt`
 4. Create a `default.appl` file and paste the sample appl database into it
 5. If running the python is acceptable, run `python main.py`
 6. If compilation is desired, run `pyinstaller main.spec` then place res, style.qss, and default.appl in the distribution folder.

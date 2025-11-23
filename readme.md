@@ -95,8 +95,9 @@ in the search bar.
 
 ### Build
 For those who do not feel comfortable downloading a pre-built binary
-1. Download source code
+1. Download source code with `git clone https://github.com/brendancapple/MediAppl.git`
 2. Create a venv virtual environment in the source folder
 3. Run `pip install -r dependencies.txt`
-4. If running the python is acceptable, run `python main.py`
-5. If compilation is desired, run `pyinstaller main.spec` then place res, style.qss, and default.appl in the distribution folder.
+4. Create a `default.appl` file and paste the sample appl database into it
+5. If running the python is acceptable, run `python main.py`
+6. If compilation is desired, run `pyinstaller main.spec` then place res, style.qss, and default.appl in the distribution folder.

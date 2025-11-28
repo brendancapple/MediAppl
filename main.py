@@ -337,7 +337,7 @@ class MainWindow(QMainWindow):
             path = path + "/" + os.listdir(path)[0]
         ext = path[path.rfind(".")+1:].lower()
         print(self.database.app_associations[ext] + " \'" + path + "\'")
-        subprocess.call([self.database.app_associations[ext], path])
+        subprocess.Popen([self.database.app_associations[ext], path])
 
     def edit_entry(self):
         print("Edit Entry")

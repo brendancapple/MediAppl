@@ -5,6 +5,7 @@ import numpy as np
 from ebooklib import epub
 
 LANGUAGE_CODES = {
+    'und': 'unknown',
     'en': 'English',
     'en-US': 'English',
     'en-UK': 'English',

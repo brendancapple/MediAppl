@@ -220,6 +220,7 @@ class FilterDialog(QDialog):
         widget_author.setMinimumWidth(650)
         layout_author = FlowLayout()
         for key in self.authors:
+            key = key.title()
             button_key = QPushButton(key)
             button_key.setCheckable(True)
             button_key.clicked.connect(partial(self.toggle_output, key))
@@ -233,6 +234,7 @@ class FilterDialog(QDialog):
         widget_series.setMinimumWidth(650)
         layout_series = FlowLayout()
         for key in self.series:
+            key = key.title()
             button_key = QPushButton(key)
             button_key.setCheckable(True)
             button_key.clicked.connect(partial(self.toggle_output, key))
@@ -246,6 +248,7 @@ class FilterDialog(QDialog):
         widget_languages.setMinimumWidth(650)
         layout_languages = FlowLayout()
         for key in self.languages:
+            key = key.title()
             button_key = QPushButton(key)
             button_key.setCheckable(True)
             button_key.clicked.connect(partial(self.toggle_output, key))
@@ -259,6 +262,7 @@ class FilterDialog(QDialog):
         widget_ratings.setMinimumWidth(650)
         layout_ratings = FlowLayout()
         for key in self.ratings:
+            key = key.upper()
             button_key = QPushButton(key)
             button_key.setCheckable(True)
             button_key.clicked.connect(partial(self.toggle_output, key))
@@ -272,6 +276,7 @@ class FilterDialog(QDialog):
         widget_tags.setMinimumWidth(650)
         layout_tags = FlowLayout()
         for key in self.tags:
+            key = key.upper()
             button_key = QPushButton(key)
             button_key.setCheckable(True)
             button_key.clicked.connect(partial(self.toggle_output, key))

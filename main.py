@@ -268,11 +268,13 @@ class MainWindow(QMainWindow):
         print("Search: " + query)
 
         if query == "":
-            output = self.database.entries
+            self.entries = self.database.entries
+            print("empty query")
         else:
-            output = self.database.search(query)
+            self.entries = self.database.search(query)
+            print("searched " + query)
         print("Update entries")
-        self.update_entries_scroll(output)
+        self.update_entries_scroll()
         print("Updated entries")
 
     def search_filter(self):
@@ -314,8 +316,11 @@ class MainWindow(QMainWindow):
         print("Search Tags")
         tag_dialog = qt_util.FilterDialog(self.database, 4)
         if tag_dialog.exec_():
+            print("got string")
             self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " " + tag_dialog.get_output())
+            print("string in searchbar")
             self.search_entries()
+            print("searched entries")
 
     def search_selection(self, category: int):
         match category:
@@ -344,6 +349,7 @@ class MainWindow(QMainWindow):
         edit_dialog = qt_util.EditDialog(self.database, self.entry)
         if edit_dialog.exec_():
             self.update_entry_vbox()
+            self.update_entries_scroll()
 
     def edit_preferences(self):
         print("Edit Preferences")
@@ -355,7 +361,8 @@ class MainWindow(QMainWindow):
         print("Update UI")
         self.input_dbSearchbar.setText("")
         self.label_dbName.setText(self.database.name + " (" + str(self.database.entry_count) + ")")
-        self.update_entries_scroll(self.database.entries)
+        self.entries = self.database.entries
+        self.update_entries_scroll()
         self.update_entry_vbox()
 
     def switch_entry(self, entry_item: qt_util.EntryListing):
@@ -395,16 +402,23 @@ class MainWindow(QMainWindow):
         # print("Unknown Cover")
         return False
 
-    def update_entries_scroll(self, entries):
+    def update_entries_scroll(self):
+        if self.entries is None:
+            self.entries = self.database.entries
+            print("error no self.entries")
+
         print("Update Entries")
-        self.entries = entries
         print(self.entries)
         self.label_dbName.setText(self.database.name + " (" + str(len(self.entries)) + ")")
         print("Label Updated")
-        self.list_dbEntries.clear()
-        print("Entries cleared")
+        if len(self.list_dbEntries.children()) > 0:
+            print("Attempt clear")
+            self.list_dbEntries.clear()
+            print("Entries cleared")
+        else:
+            print("needn't clear entries")
 
-        for e in entries:
+        for e in self.entries:
             widget = qt_util.EntryListing(self, e)
             self.list_dbEntries.addItem(widget)
         print("entry list updated")

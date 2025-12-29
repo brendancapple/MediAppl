@@ -208,6 +208,33 @@ def cache_video_cover(db_dir: str, cache: str, vid_path: str) -> str:
     return image_path
 
 
+def cache_audio_cover(db_dir: str, cache: str, audio_path) -> str:
+    print("cache_audio_cover of " + audio_path)
+    try:
+        audio = TinyTag.get(audio_path, image=True)
+    except:
+        print("Couldn't Get Metadata")
+        return "unknown"
+
+    cover_data = audio.images.any
+    if cover_data is None:
+        print("No Images")
+        return "unknown"
+    print("cover found")
+
+    nparr = np.frombuffer(cover_data.data, np.uint8)
+    del cover_data
+
+    if not os.path.exists(db_dir + cache):
+        os.mkdir(db_dir + cache)
+    audio_name = audio_path[audio_path.rfind("/")+1:audio_path.rfind(".")]
+    image_path = db_dir + cache + "/" + audio_name + ".jpg"
+    print("Cached Image Path " + image_path)
+    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    cv2.imwrite(image_path, image)
+    return image_path
+
+
 def get_video_resolution(vid_path):
     try:
         video = cv2.VideoCapture(vid_path)

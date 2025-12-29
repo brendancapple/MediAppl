@@ -250,6 +250,7 @@ class Database:
                 entry_tags = ['Image']
             elif entry_ext in SUPPORTED_AUDIO_FORMATS:
                 entry_name, entry_author, entry_series, entry_vol, entry_year, entry_genre = util.get_audio_metadata(file)
+                entry_cover = util.cache_audio_cover(self.db_dir, CACHE_DIR, file)
                 entry_tags = ['Audio', entry_genre] if entry_genre is not None else ['Audio']
             elif entry_ext.lower() in SUPPORTED_TEXT_FORMATS:
                 entry_tags = ['Text']

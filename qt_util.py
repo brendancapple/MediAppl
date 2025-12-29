@@ -536,6 +536,7 @@ class EditDialog(QDialog):
             entry_name, entry_author, entry_series, entry_vol, entry_year, entry_tags = (
                 util.get_audio_metadata(self.database.db_dir + self.entry.path)
             )
+            entry_cover = util.cache_audio_cover(self.database.db_dir, db.CACHE_DIR, self.database.db_dir + self.entry.path)
             if "audio" not in self.input_tags.text().lower():
                 if entry_tags is None or entry_tags.lower() in self.input_tags.text().lower():
                     entry_tags = "Audio"

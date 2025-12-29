@@ -1,4 +1,5 @@
 import os
+import json
 
 from PyQt5.QtWidgets import QProgressBar, QLabel
 
@@ -60,6 +61,20 @@ class Entry:
                 '   resolution: ' + str(self.resolution) +
                 '   tags: ' + str(self.tags)
                 )
+
+    def dictionary(self):
+        return {'path': self.path,
+                'cover': self.cover_path,
+                'name': self.name,
+                'author': self.author,
+                'series': self.series,
+                'vol': self.vol,
+                'language': self.language,
+                'age_rating': self.age_rating,
+                'release': self.release,
+                'resolution': str(self.resolution),
+                'tags': str(self.tags)
+                }
 
 
 #
@@ -195,8 +210,10 @@ class Database:
             file = file.replace("\\", "/")
             # print(file)
             if file[len(self.db_dir):][:len(CACHE_DIR)] == CACHE_DIR:
+                print("cached")
                 continue
             if "._" in file:
+                print("found ._")
                 continue
 
             entry_name = file[file.rfind("/")+1:file.rfind(".")]
@@ -256,6 +273,45 @@ class Database:
 
         with open(filepath, "w", encoding="utf-8") as file:
             file.write(text)
+
+    def export_json(self, filepath: str):
+        dictionary = {
+            "file_dir": self.file_dir,
+            "name": self.name,
+            "db_dir": self.db_dir,
+
+            "app_associations": self.app_associations,
+            "entry_count": self.entry_count,
+            "entries": [e.dictionary() for e in self.entries]
+        }
+
+        with open(filepath, 'w') as file:
+            output = json.dumps(dictionary)
+            print(output)
+            file.write(output)
+
+    def export_csv(self, filepath: str):
+        rows = []
+        for e in self.entries:
+            row = str(self.db_dir + e.path +
+                      ', ' + str(e.cover_path) +
+                      ', ' + str(e.name) +
+                      ', ' + str(e.author) +
+                      ', ' + str(e.series) +
+                      ', ' + str(e.vol) +
+                      ', ' + str(e.language) +
+                      ', ' + str(e.age_rating) +
+                      ', ' + str(e.release) +
+                      ', ' + str(e.resolution[0]) +
+                      ', ' + str(e.resolution[1]) +
+                      ', ' + '"' + str(e.tags)[1:-1] + '"'
+                      )
+            rows.append(row)
+        output = '\n'.join(rows)
+        print(output)
+
+        with open(filepath, 'w') as file:
+            file.write(output)
 
     def set_app_associations(self, extension: str, app: str):
         self.app_associations[extension] = app

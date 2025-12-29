@@ -71,6 +71,14 @@ class MainWindow(QMainWindow):
         button_edit.setShortcut(QKeySequence("Ctrl+e"))
         button_edit.triggered.connect(self.edit_entry)
 
+        button_export_json = QAction("Export JSON", self)
+        button_export_json.setStatusTip("Export current database as a JSON file")
+        button_export_json.triggered.connect(self.export_json)
+
+        button_export_csv = QAction("Export CSV", self)
+        button_export_csv.setStatusTip("Export current database as a CSV file")
+        button_export_csv.triggered.connect(self.export_csv)
+
         button_open = QAction("Open", self)
         button_open.setStatusTip("Open Current Entry")
         button_open.setShortcut(QKeySequence("Ctrl+enter"))
@@ -116,6 +124,9 @@ class MainWindow(QMainWindow):
         file_menu.addAction(button_save)
         file_menu.addAction(button_save_as)
         file_menu.addAction(button_reload)
+        file_menu.addSeparator()
+        file_menu.addAction(button_export_json)
+        file_menu.addAction(button_export_csv)
         file_menu.addSeparator()
         file_menu.addAction(button_preferences)
 
@@ -255,6 +266,28 @@ class MainWindow(QMainWindow):
         if dialog.exec_():
             filepath = dialog.selectedFiles()[0]
             self.database.save_as_file(filepath)
+
+    def export_json(self):
+        print("Export JSON")
+        dialog = QFileDialog(self)
+        dialog.setFileMode(QFileDialog.FileMode.AnyFile)
+        dialog.setNameFilter("JSON (*.json)")
+        dialog.setDirectory(self.database.db_dir)
+        if dialog.exec_():
+            filepath = dialog.selectedFiles()[0]
+            print(filepath)
+            self.database.export_json(filepath)
+
+    def export_csv(self):
+        print("Export CSV")
+        dialog = QFileDialog(self)
+        dialog.setFileMode(QFileDialog.FileMode.AnyFile)
+        dialog.setNameFilter("Comma Separated Values (*.csv)")
+        dialog.setDirectory(self.database.db_dir)
+        if dialog.exec_():
+            filepath = dialog.selectedFiles()[0]
+            print(filepath)
+            self.database.export_csv(filepath)
 
     def reload_database(self):
         print("Reload Database From Disk")

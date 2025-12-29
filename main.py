@@ -89,6 +89,11 @@ class MainWindow(QMainWindow):
         button_open.setShortcut(QKeySequence("Ctrl+enter"))
         button_open.triggered.connect(self.open_entry)
 
+        button_delete = QAction("Delete", self)
+        button_delete.setStatusTip("Delete Current Entry")
+        button_delete.setShortcut(QKeySequence("Del"))
+        button_delete.triggered.connect(self.delete_entry)
+
         button_preferences = QAction("Preferences", self)
         button_preferences.setStatusTip("Edit Database Preferences")
         button_preferences.setShortcut(QKeySequence("Ctrl+p"))
@@ -140,6 +145,7 @@ class MainWindow(QMainWindow):
         entry_menu = menu.addMenu("&Entry")
         entry_menu.addAction(button_open)
         entry_menu.addAction(button_edit)
+        entry_menu.addAction(button_delete)
 
         filter_menu = menu.addMenu("&Filter")
         filter_menu.addAction(button_filter)

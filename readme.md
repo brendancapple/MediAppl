@@ -10,22 +10,27 @@ website, without algorithmic suggestions.
 
 ![Main Interface Screenshot](demo.png "Screenshot of MediAppl's Main Interface")
 
-There is some basic automatic metadata detection, 
-such as cover selection for image files, epubs, and videos. 
+There is automatic metadata detection, 
+such as cover detection for image files, epubs, music, and videos. 
 Furthermore, folders with numbered files, such animation frames,
-will appear as entries in place of their elements.
+will appear as single unified entries in place of their elements.
 
 Early versions of this tool will have feature limitations, such as
 difficulty opening files in windows. 
 
 ### Future Plans
-Future releases will improve automatic metadata collection from files,
-especially videos and epubs. In addition, reading the metadata left
-in MP3s and MP4s is under consideration.
+Currently, MediAppl can export to JSON or CSV, but not read from them.
+In the future, this will be remedied. 
+The list of entries is also unsorted as of now,
+so sorting for the entry list is planned for future updates.
 
 Furthermore, the search will be made more sophisticated in the future.
 It currently runs by checking substrings of every element,
 so the complexity is quite high.
+
+Also under consideration are a native file reader to avoid 
+app switching for simpler file types like TXT and MD and
+a directory view to better sort files.
 
 ### Operation
 

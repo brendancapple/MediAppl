@@ -213,7 +213,7 @@ class Database:
                 print("cached")
                 continue
             if "._" in file:
-                print("found ._")
+                print("found ._ in " + file)
                 continue
 
             entry_name = file[file.rfind("/")+1:file.rfind(".")]
@@ -228,7 +228,7 @@ class Database:
                 file = file[:file.rfind("/")]
                 entry_name = file[file.rfind("/") + 1:]
             if file[len(self.db_dir):] in self.filepaths:
-                print("skip file")
+                print("skip file -- known" + file)
                 continue
             elif entry_ext.lower() in SUPPORTED_VIDEO_FORMATS:
                 entry_cover = util.cache_video_cover(self.db_dir, CACHE_DIR, file)
@@ -312,6 +312,8 @@ class Database:
 
         with open(filepath, 'w') as file:
             file.write(output)
+
+    # TODO: Import JSON (Just need to turn JSON into an APPL file and open it)
 
     def set_app_associations(self, extension: str, app: str):
         self.app_associations[extension] = app

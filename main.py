@@ -79,6 +79,10 @@ class MainWindow(QMainWindow):
         button_export_csv.setStatusTip("Export current database as a CSV file")
         button_export_csv.triggered.connect(self.export_csv)
 
+        button_clean = QAction("Clean Database", self)
+        button_clean.setStatusTip("Remove all files that don't exist on the disk")
+        button_clean.triggered.connect(self.clean_database)
+
         button_open = QAction("Open", self)
         button_open.setStatusTip("Open Current Entry")
         button_open.setShortcut(QKeySequence("Ctrl+enter"))
@@ -127,6 +131,8 @@ class MainWindow(QMainWindow):
         file_menu.addSeparator()
         file_menu.addAction(button_export_json)
         file_menu.addAction(button_export_csv)
+        file_menu.addSeparator()
+        file_menu.addAction(button_clean)
         file_menu.addSeparator()
         file_menu.addAction(button_preferences)
 
@@ -248,10 +254,13 @@ class MainWindow(QMainWindow):
         if dialog.exec_():
             filepath = dialog.selectedFiles()[0]
             self.database = db.Database(filepath)
-            self.database.clean_entries()
             self.entry = self.database.entries[0]
             print("pre update")
             self.update_ui()
+
+    def clean_database(self):
+        print("Clean Database")
+        self.database.clean_entries()
 
     def save_database(self):
         print("Save Database")

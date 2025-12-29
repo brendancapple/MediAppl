@@ -259,8 +259,11 @@ class MainWindow(QMainWindow):
             self.update_ui()
 
     def clean_database(self):
-        print("Clean Database")
-        self.database.clean_entries()
+        dialog = qt_util.ConfirmationDialog("Are you sure you want to clean the database?\n"
+                                            "Any deleted files cannot be recovered.")
+        if dialog.exec_():
+            print("Clean Database")
+            self.database.clean_entries()
 
     def save_database(self):
         print("Save Database")
@@ -447,6 +450,7 @@ class MainWindow(QMainWindow):
     def update_entries_scroll(self):
         if self.entries is None:
             self.entries = self.database.entries
+            # TODO: Only add entries to self.entries if they have a valid filepath
             print("error no self.entries")
 
         print("Update Entries")

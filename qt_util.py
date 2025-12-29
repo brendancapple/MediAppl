@@ -137,6 +137,25 @@ class LoadingDialog(QDialog):
         self.accept()
 
 
+class ConfirmationDialog(QDialog):
+    def __init__(self, text: str):
+        super().__init__()
+
+        self.setWindowTitle("Confirmation Dialog")
+
+        QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+
+        self.buttonBox = QDialogButtonBox(QBtn)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+        layout = QVBoxLayout()
+        message = QLabel(text)
+        layout.addWidget(message)
+        layout.addWidget(self.buttonBox)
+        self.setLayout(layout)
+
+
 class PreferencesDialog(QDialog):
     def __init__(self, database: db.Database, parent=None):
         super().__init__(parent)

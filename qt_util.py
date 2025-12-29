@@ -504,32 +504,72 @@ class EditDialog(QDialog):
         entry_name = ""
         entry_author = ""
         entry_lang = ""
+        entry_series = ""
+        entry_vol = ""
         entry_res = (-1, -1)
+        entry_tags = None
+        entry_year = ""
         print(ext)
         print(db.SUPPORTED_IMAGE_FORMATS)
         if ext == "epub":
             entry_cover = util.cache_epub_cover(self.database.db_dir, db.CACHE_DIR, self.database.db_dir + self.entry.path)
             entry_name, entry_author, entry_lang = util.get_epub_metadata(self.database.db_dir + self.entry.path)
+            if "book" not in self.input_tags.text().lower():
+                entry_tags = "Book"
         elif ext in db.SUPPORTED_IMAGE_FORMATS:
             entry_res = util.get_image_resolution(self.database.db_dir + self.entry.path)
             print(entry_res)
+            if "image" not in self.input_tags.text().lower():
+                entry_tags = "Image"
         elif ext in db.SUPPORTED_VIDEO_FORMATS:
             print(self.database.db_dir+self.entry.path)
             entry_cover = util.cache_video_cover(self.database.db_dir, db.CACHE_DIR, self.database.db_dir + self.entry.path)
             entry_res = util.get_video_resolution(self.database.db_dir + self.entry.path)
+            entry_name, entry_author, entry_year, entry_tags = util.get_video_metadata(self.database.db_dir + self.entry.path)
+            if "video" not in self.input_tags.text().lower():
+                if entry_tags is None or entry_tags.lower() in self.input_tags.text().lower():
+                    entry_tags = "Video"
+                else:
+                    entry_tags = "Video, " + entry_tags
+        elif ext in db.SUPPORTED_AUDIO_FORMATS:
+            print(self.database.db_dir+self.entry.path)
+            entry_name, entry_author, entry_series, entry_vol, entry_year, entry_tags = (
+                util.get_audio_metadata(self.database.db_dir + self.entry.path)
+            )
+            if "audio" not in self.input_tags.text().lower():
+                if entry_tags is None or entry_tags.lower() in self.input_tags.text().lower():
+                    entry_tags = "Audio"
+                else:
+                    entry_tags = "Audio, " + entry_tags
+        elif ext in db.SUPPORTED_TEXT_FORMATS:
+            if "text" not in self.input_tags.text().lower():
+                entry_tags = "Text"
+
 
         if entry_cover != "":
             self.input_cover.setText(entry_cover)
             print(self.input_cover.text())
-        if entry_author != "":
+        if entry_author != "" and entry_author is not None:
             self.input_author.setText(entry_author)
             print(self.input_author.text())
-        if entry_name != "":
+        if entry_name != "" and entry_name is not None:
             self.input_name.setText(entry_name)
             print(self.input_name.text())
         if entry_lang != "":
             self.input_language.setText(entry_lang)
             print(self.input_language.text())
+        if entry_year != "" and entry_year is not None:
+            self.input_release.setText(entry_year)
+            print(self.input_release.text())
+        if entry_series != "" and entry_series is not None:
+            self.input_series.setText(entry_series)
+            print(self.input_series.text())
+        if entry_vol != "" and entry_vol is not None:
+            self.input_vol.setText(entry_vol)
+            print(self.input_vol.text())
+        if entry_tags != "" and entry_tags is not None:
+            self.input_tags.setText(entry_tags + ", " + self.input_tags.text())
+            print(self.input_tags.text())
         if entry_res[0] >= 0:
             self.input_res1.setText(str(entry_res[0]))
             self.input_res2.setText(str(entry_res[1]))

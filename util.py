@@ -3,6 +3,7 @@ import os.path
 import cv2
 import numpy as np
 from ebooklib import epub
+from tinytag import TinyTag
 
 LANGUAGE_CODES = {
     'und': 'unknown',
@@ -216,6 +217,32 @@ def get_video_resolution(vid_path):
     height = video.get(cv2.CAP_PROP_FRAME_HEIGHT)  # float `height`
     res = (int(width), int(height))
     return res
+
+
+def get_video_metadata(vid_path):
+    print("Get " + vid_path)
+    try:
+        vid = TinyTag.get(vid_path)
+    except:
+        print("Couldn't get Metadata")
+        return (None, None, None, None)
+    print("Got " + vid_path)
+
+    output = (vid.title, vid.artist, vid.year, vid.genre)
+    print(output)
+
+    return output
+
+
+def get_audio_metadata(filepath):
+    print("Get " + filepath)
+    vid = TinyTag.get(filepath)
+    print("Got " + filepath)
+
+    output = (vid.title, vid.artist, vid.album, str(vid.track), vid.year, vid.genre)
+    print(output)
+
+    return output
 
 
 def get_image_resolution(img_path):

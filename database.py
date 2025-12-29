@@ -8,6 +8,8 @@ import util
 CACHE_DIR = "_cache"
 SUPPORTED_IMAGE_FORMATS = {"bmp", "png", "jpg", "jpeg", "gif", "cur", "ico", "jfif", "pbm", "pgm", "ppm", "svg", "svgz", "xbm", "xpm"}
 SUPPORTED_VIDEO_FORMATS = {"mp4", "mov", "avi", "flv", "mkv"}
+SUPPORTED_AUDIO_FORMATS = {"mp3", "m4a", "ogg", "wav", "flac", "aiff"}
+SUPPORTED_TEXT_FORMATS = {"txt", "md"}
 
 #
 #
@@ -219,9 +221,13 @@ class Database:
             entry_name = file[file.rfind("/")+1:file.rfind(".")]
             entry_ext = file[file.rfind(".")+1:]
             entry_cover = "unknown"
-            entry_lang = "unknown"
-            entry_author = "unknown"
+            entry_lang = None
+            entry_author = None
+            entry_series = None
+            entry_vol = 0
+            entry_year = 0
             entry_res = (0, 0)
+            entry_tags = []
             if entry_ext.lower() in SUPPORTED_IMAGE_FORMATS:
                 entry_cover = file
             if entry_name.strip().replace("_", "").replace(".", "").isdigit():
@@ -231,17 +237,48 @@ class Database:
                 print("skip file -- known" + file)
                 continue
             elif entry_ext.lower() in SUPPORTED_VIDEO_FORMATS:
+                entry_name, entry_author, entry_year, entry_genre = util.get_video_metadata(file)
                 entry_cover = util.cache_video_cover(self.db_dir, CACHE_DIR, file)
                 entry_res = util.get_video_resolution(file)
+                entry_tags = ['Video', entry_genre] if entry_genre is not None else ['Video']
             elif entry_ext.lower() == "epub":
                 entry_cover = util.cache_epub_cover(self.db_dir, CACHE_DIR, file)
                 entry_name, entry_author, entry_lang = util.get_epub_metadata(file)
+                entry_tags = ['Book']
             elif entry_ext.lower() in SUPPORTED_IMAGE_FORMATS:
                 entry_res = util.get_image_resolution(file)
+                entry_tags = ['Image']
+            elif entry_ext in SUPPORTED_AUDIO_FORMATS:
+                entry_name, entry_author, entry_series, entry_vol, entry_year, entry_genre = util.get_audio_metadata(file)
+                entry_tags = ['Audio', entry_genre] if entry_genre is not None else ['Audio']
+            elif entry_ext.lower() in SUPPORTED_TEXT_FORMATS:
+                entry_tags = ['Text']
+
+            if entry_name is None:
+                print("fix name")
+                entry_name = file[file.rfind("/") + 1:file.rfind(".")]
+            if entry_lang is None:
+                print("fix lang")
+                entry_lang = "unknown"
+            if entry_author is None:
+                print("fix author")
+                entry_author = "unknown"
+            if entry_series is None:
+                print("fix series")
+                entry_series = "unknown"
+            if entry_vol is None:
+                print("fix vol")
+                entry_vol = 0
+            if entry_year is None:
+                print("fix year")
+                entry_year = 0
+            if len(entry_tags) <= 0:
+                print("fix tags")
+                entry_tags = ['Unknown']
 
             entry = Entry(file[len(self.db_dir):], entry_cover, entry_name,
-                          entry_author, "unknown", 1, entry_lang, "NA", 0,
-                          entry_res, ["unknown"])
+                          entry_author, entry_series, int(entry_vol), entry_lang, "NA", int(entry_year),
+                          entry_res, entry_tags)
 
             self.add_entry(entry)
             if bar is not None:

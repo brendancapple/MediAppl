@@ -3,3 +3,4 @@ numpy
 ebooklib
 opencv-python
 pyinstaller
+tinytag

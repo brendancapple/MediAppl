@@ -81,6 +81,7 @@ class MainWindow(QMainWindow):
 
         button_clean = QAction("Clean Database", self)
         button_clean.setStatusTip("Remove all files that don't exist on the disk")
+        button_clean.setShortcut(QKeySequence("Ctrl+j"))
         button_clean.triggered.connect(self.clean_database)
 
         button_open = QAction("Open", self)
@@ -201,9 +202,12 @@ class MainWindow(QMainWindow):
         button_entryOpen.clicked.connect(self.open_entry)
         button_entryEdit = QPushButton("Edit")
         button_entryEdit.clicked.connect(self.edit_entry)
+        button_entryDelete = QPushButton("Delete")
+        button_entryDelete.clicked.connect(self.delete_entry)
         layout_entry_buttons = QHBoxLayout()
         layout_entry_buttons.addWidget(button_entryOpen)
         layout_entry_buttons.addWidget(button_entryEdit)
+        layout_entry_buttons.addWidget(button_entryDelete)
         widget_entry_buttons = QWidget()
         widget_entry_buttons.setLayout(layout_entry_buttons)
 
@@ -393,6 +397,15 @@ class MainWindow(QMainWindow):
         print("Edit Entry")
         edit_dialog = qt_util.EditDialog(self.database, self.entry)
         if edit_dialog.exec_():
+            self.update_entry_vbox()
+            self.update_entries_scroll()
+
+    def delete_entry(self):
+        dialog = qt_util.ConfirmationDialog("Are you sure you want to delete this entry?\n"
+                                            "The file's metadata cannot be recovered.")
+        if dialog.exec_():
+            print("Delete Entry")
+            self.database.entries.remove(self.entry)
             self.update_entry_vbox()
             self.update_entries_scroll()
 

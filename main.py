@@ -38,8 +38,7 @@ class MainWindow(QMainWindow):
         self.entries = []
         self.entry: db.Entry = self.database.entries[0]
 
-        self.sorting = int(util.SortingElements.NAME.value | util.SortingElements.AUTHOR.value |
-                        util.SortingElements.SERIES.value | util.SortingElements.VOL.value)
+        self.sorting = int(util.SortingElements.PATH.value)
 
         self.setWindowTitle("MediAppl")
         self.setWindowIcon(QIcon('res/Icon.png'))

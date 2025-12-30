@@ -24,6 +24,7 @@ import os
 
 import database as db
 import qt_util
+import util
 
 ENTRY_LISTING_HEIGHT = 60
 DEFAULT_APP_ASSOCIATIONS = {"mp3": "vlc", "txt": "vim"}
@@ -36,6 +37,9 @@ class MainWindow(QMainWindow):
         self.database: db.Database = db.Database("default.appl")
         self.entries = []
         self.entry: db.Entry = self.database.entries[0]
+
+        self.sorting = int(util.SortingElements.NAME.value | util.SortingElements.AUTHOR.value |
+                        util.SortingElements.SERIES.value | util.SortingElements.VOL.value)
 
         self.setWindowTitle("MediAppl")
         self.setWindowIcon(QIcon('res/Icon.png'))
@@ -124,6 +128,22 @@ class MainWindow(QMainWindow):
         button_tags.setStatusTip("Filter Tags")
         button_tags.triggered.connect(self.search_tags)
 
+        button_sort = QAction("Sort", self)
+        button_sort.setStatusTip("Sort Entries")
+        button_sort.setShortcut(QKeySequence("Ctrl+alt+g"))
+        button_sort.triggered.connect(self.sort_entries)
+
+        button_quick_sort = QAction("Quick Sort", self)
+        button_quick_sort.setStatusTip("Sort Entries without opening the menu")
+        button_quick_sort.setShortcut(QKeySequence("Ctrl+g"))
+        button_quick_sort.triggered.connect(self.quick_sort_entries)
+
+        button_reverse = QAction("Reverse", self)
+        button_reverse.setStatusTip("Reverse Entries")
+        button_reverse.setShortcut(QKeySequence("Ctrl+h"))
+        button_reverse.triggered.connect(self.reverse_entries)
+
+
         # Create Menu
         menu = self.menuBar()
 
@@ -155,6 +175,12 @@ class MainWindow(QMainWindow):
         filter_menu.addAction(button_languages)
         filter_menu.addAction(button_ratings)
         filter_menu.addAction(button_tags)
+
+        sort_menu = menu.addMenu("&Sort")
+        sort_menu.addAction(button_sort)
+        sort_menu.addAction(button_quick_sort)
+        sort_menu.addSeparator()
+        sort_menu.addAction(button_reverse)
 
         # Create Status Bar
         self.setStatusBar(QStatusBar(self))
@@ -390,6 +416,22 @@ class MainWindow(QMainWindow):
 
         self.search_entries()
 
+    def sort_entries(self):
+        dialog = qt_util.SortDialog(self.sorting)
+        if dialog.exec_():
+            self.sorting = dialog.get_output()
+            print(self.entry.create_sorting_string(self.sorting))
+            self.entries.sort(key=lambda e: e.create_sorting_string(self.sorting))
+            self.update_entries_scroll()
+
+    def quick_sort_entries(self):
+        self.entries.sort(key=lambda e: e.create_sorting_string(self.sorting))
+        self.update_entries_scroll()
+
+    def reverse_entries(self):
+        self.entries.reverse()
+        self.update_entries_scroll()
+
     def open_entry(self):
         print("Open Entry")
         path = self.database.db_dir + self.entry.path
@@ -469,6 +511,7 @@ class MainWindow(QMainWindow):
     def update_entries_scroll(self):
         if self.entries is None:
             self.entries = self.database.entries
+            self.sort_entries()
             # TODO: Only add entries to self.entries if they have a valid filepath
             print("error no self.entries")
 

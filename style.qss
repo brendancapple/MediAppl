@@ -14,6 +14,10 @@ FilterDialog {
     border-image: url(res/BG_Filter.png) 0 0 0 0 stretch stretch;
 }
 
+SortDialog {
+    border-image: url(res/BG_Filter.png) 0 0 0 0 stretch stretch;
+}
+
 LoadingDialog {
     border-image: url(res/BG_Filter.png) 0 0 0 0 stretch stretch;
 }
@@ -87,13 +91,19 @@ QTextEdit:selected {
 }
 
 QPushButton {
-    color: white;
+    color: #eeeeee;
     background-color: #501616;
 }
 
 QPushButton:hover {
     color: white;
     background-color: #832e3d;
+}
+
+QPushButton:checked {
+    font: bold;
+    color: white;
+    background-color: #501616;
 }
 
 QListWidget {

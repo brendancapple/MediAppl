@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 from ebooklib import epub
 from tinytag import TinyTag
+from enum import Enum
 
 LANGUAGE_CODES = {
     'und': 'unknown',
@@ -118,6 +119,19 @@ def powerset(s):
     return list(result)
 
 
+# Sorting
+class SortingElements(Enum):
+    PATH = 1
+    NAME = 2
+    AUTHOR = 4
+    SERIES = 8
+    VOL = 16
+    LANGUAGE = 32
+    RATING = 64
+    RELEASE = 128
+    RESOLUTION = 256
+    TAGS = 512
+
 # Hashing
 def hash_string(string: str) -> int:
     total = 0
@@ -125,24 +139,7 @@ def hash_string(string: str) -> int:
         total += ord(c)
     return total
 
-# Safe Open
-# def mkdir_p(path):
-#     try:
-#         os.makedirs(path)
-#     except OSError as exc:  # Python >2.5
-#         if exc.errno == errno.EEXIST and os.path.isdir(path):
-#             pass
-#         else:
-#             raise
-#
-# def safe_open_w(path):
-#     ''' Open "path" for writing, creating any parent directories as needed.
-#     '''
-#     mkdir_p(os.path.dirname(path))
-#     return open(path, 'w')
-
-
-# Cover Grabbing
+# Metadata Grabbing
 def get_epub_metadata(epub_path: str):
     print("get_epub_metadata of " + epub_path)
     try:

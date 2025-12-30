@@ -199,6 +199,116 @@ class PreferencesDialog(QDialog):
         self.accept()
 
 
+class SortDialog(QDialog):
+    def __init__(self, sorting: int, parent=None):
+        super().__init__(parent)
+        self.sorting = sorting
+
+        print(self.sorting)
+        buttons_layout = QVBoxLayout()
+        self.buttons = QWidget()
+        self.buttons.setLayout(buttons_layout)
+        print("layout made")
+
+        button_path = QPushButton("PATH")
+        button_path.setCheckable(True)
+        button_path.setChecked(self.sorting & util.SortingElements.PATH.value != 0)
+        button_path.clicked.connect(self.toggle_path)
+        buttons_layout.addWidget(button_path)
+
+        button_language = QPushButton("LANGUAGE")
+        button_language.setCheckable(True)
+        button_language.setChecked(self.sorting & util.SortingElements.LANGUAGE.value != 0)
+        button_language.clicked.connect(self.toggle_language)
+        buttons_layout.addWidget(button_language)
+
+        button_author = QPushButton("AUTHOR")
+        button_author.setCheckable(True)
+        button_author.setChecked(self.sorting & util.SortingElements.AUTHOR.value != 0)
+        button_author.clicked.connect(self.toggle_author)
+        buttons_layout.addWidget(button_author)
+
+        button_series = QPushButton("SERIES")
+        button_series.setCheckable(True)
+        button_series.setChecked(self.sorting & util.SortingElements.SERIES.value != 0)
+        button_series.clicked.connect(self.toggle_series)
+        buttons_layout.addWidget(button_series)
+
+        button_volume = QPushButton("VOLUME")
+        button_volume.setCheckable(True)
+        button_volume.setChecked(self.sorting & util.SortingElements.VOL.value != 0)
+        button_volume.clicked.connect(self.toggle_volume)
+        buttons_layout.addWidget(button_volume)
+
+        button_rating = QPushButton("AGE RATING")
+        button_rating.setCheckable(True)
+        button_rating.setChecked(self.sorting & util.SortingElements.RATING.value != 0)
+        button_rating.clicked.connect(self.toggle_rating)
+        buttons_layout.addWidget(button_rating)
+
+        button_name = QPushButton("NAME")
+        button_name.setCheckable(True)
+        button_name.setChecked(self.sorting & util.SortingElements.NAME.value != 0)
+        button_name.clicked.connect(self.toggle_name)
+        buttons_layout.addWidget(button_name)
+
+        button_resolution = QPushButton("RESOLUTION")
+        button_resolution.setCheckable(True)
+        button_resolution.setChecked(self.sorting & util.SortingElements.RESOLUTION.value != 0)
+        button_resolution.clicked.connect(self.toggle_res)
+        buttons_layout.addWidget(button_resolution)
+
+        button_tags = QPushButton("TAGS")
+        button_tags.setCheckable(True)
+        button_tags.setChecked(self.sorting & util.SortingElements.TAGS.value != 0)
+        button_tags.clicked.connect(self.toggle_tags)
+        buttons_layout.addWidget(button_tags)
+
+        print("buttons made")
+
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+        print("exit made")
+
+        layout = QVBoxLayout()
+        message = QLabel("Click to select the fields to sort by:")
+        layout.addWidget(message)
+        layout.addWidget(self.buttons)
+        layout.addWidget(self.buttonBox)
+        self.setLayout(layout)
+
+    def toggle_path(self):
+        self.sorting = self.sorting ^ util.SortingElements.PATH.value
+
+    def toggle_language(self):
+        self.sorting = self.sorting ^ util.SortingElements.LANGUAGE.value
+
+    def toggle_author(self):
+        self.sorting = self.sorting ^ util.SortingElements.AUTHOR.value
+
+    def toggle_series(self):
+        self.sorting = self.sorting ^ util.SortingElements.SERIES.value
+
+    def toggle_volume(self):
+        self.sorting = self.sorting ^ util.SortingElements.VOL.value
+
+    def toggle_rating(self):
+        self.sorting = self.sorting ^ util.SortingElements.RATING.value
+
+    def toggle_name(self):
+        self.sorting = self.sorting ^ util.SortingElements.NAME.value
+
+    def toggle_res(self):
+        self.sorting = self.sorting ^ util.SortingElements.RESOLUTION.value
+
+    def toggle_tags(self):
+        self.sorting = self.sorting ^ util.SortingElements.TAGS.value
+
+    def get_output(self) -> int:
+        return self.sorting
+
+
 class FilterDialog(QDialog):
     def __init__(self, database: db.Database, start_tab: int, parent=None):
         super().__init__(parent)

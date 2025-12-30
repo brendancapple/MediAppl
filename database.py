@@ -11,6 +11,7 @@ SUPPORTED_VIDEO_FORMATS = {"mp4", "mov", "avi", "flv", "mkv"}
 SUPPORTED_AUDIO_FORMATS = {"mp3", "m4a", "ogg", "wav", "flac", "aiff"}
 SUPPORTED_TEXT_FORMATS = {"txt", "md"}
 
+
 #
 #
 # Entry Class
@@ -63,6 +64,39 @@ class Entry:
                 '   resolution: ' + str(self.resolution) +
                 '   tags: ' + str(self.tags)
                 )
+
+    def create_sorting_string(self, elements: int):
+        print(elements)
+        output = ""
+        if (elements & util.SortingElements.PATH.value) != 0:
+            print("path")
+            output += self.path.lower()
+        if (elements & util.SortingElements.LANGUAGE.value) != 0:
+            print("lang")
+            output += self.language.lower()
+        if (elements & util.SortingElements.AUTHOR.value) != 0:
+            print("author")
+            output += self.author.lower()
+        if (elements & util.SortingElements.SERIES.value) != 0:
+            print("series")
+            output += self.series.lower()
+        if (elements & util.SortingElements.VOL.value) != 0:
+            print("vol")
+            output += str(self.vol).lower()
+        if (elements & util.SortingElements.RATING.value) != 0:
+            print("rating")
+            output += self.age_rating.lower()
+        if (elements & util.SortingElements.NAME.value) != 0:
+            print("name")
+            output += self.name.lower()
+        if (elements & util.SortingElements.RESOLUTION.value) != 0:
+            print("res")
+            output += str(self.resolution).lower()
+        if (elements & util.SortingElements.TAGS.value) != 0:
+            print("tags")
+            output += str(self.tags).lower()
+
+        return output
 
     def dictionary(self):
         return {'path': self.path,
@@ -267,7 +301,7 @@ class Database:
             if entry_series is None:
                 print("fix series")
                 entry_series = "unknown"
-            if entry_vol is None:
+            if entry_vol is None or not isinstance(entry_vol, int):
                 print("fix vol")
                 entry_vol = 0
             if entry_year is None:
@@ -277,6 +311,7 @@ class Database:
                 print("fix tags")
                 entry_tags = ['Unknown']
 
+            print(entry_name, entry_lang, entry_author, entry_series, entry_vol, entry_lang, entry_year, entry_res, entry_tags)
             entry = Entry(file[len(self.db_dir):], entry_cover, entry_name,
                           entry_author, entry_series, int(entry_vol), entry_lang, "NA", int(entry_year),
                           entry_res, entry_tags)

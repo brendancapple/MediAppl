@@ -18,6 +18,10 @@ LoadingDialog {
     border-image: url(res/BG_Filter.png) 0 0 0 0 stretch stretch;
 }
 
+ConfirmationDialog {
+    border-image: url(res/BG_Filter.png) 0 0 0 0 stretch stretch;
+}
+
 QInputDialog {
     border-image: url(res/BG_Filter.png) 0 0 0 0 stretch stretch;
 }

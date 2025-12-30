@@ -355,7 +355,7 @@ class MainWindow(QMainWindow):
             self.entries = self.database.search(query)
             print("searched " + query)
         print("Update entries")
-        self.update_entries_scroll()
+        self.quick_sort_entries()
         print("Updated entries")
 
     def search_filter(self):
@@ -468,7 +468,7 @@ class MainWindow(QMainWindow):
         self.input_dbSearchbar.setText("")
         self.label_dbName.setText(self.database.name + " (" + str(self.database.entry_count) + ")")
         self.entries = self.database.entries
-        self.update_entries_scroll()
+        self.quick_sort_entries()
         self.update_entry_vbox()
 
     def switch_entry(self, entry_item: qt_util.EntryListing):
@@ -512,7 +512,6 @@ class MainWindow(QMainWindow):
         if self.entries is None:
             self.entries = self.database.entries
             self.sort_entries()
-            # TODO: Only add entries to self.entries if they have a valid filepath
             print("error no self.entries")
 
         print("Update Entries")

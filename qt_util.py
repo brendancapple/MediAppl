@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QPoint, QRect, QSize, Qt, pyqtSignal
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QLayout, QPushButton, QSizePolicy, QWidget, QLabel, QTextEdit, QVBoxLayout, QDialog,
     QDialogButtonBox, QScrollArea, QTabWidget, QLineEdit, QHBoxLayout, QFileDialog, QListWidgetItem, QProgressBar)
@@ -11,9 +11,10 @@ import util
 
 
 class EntryView(Enum):
-    TEXT = 0
+    COMPACT = 0
     ICON = 1
-    EVERYTHING = 2
+    EXTENDED = 2
+    EVERYTHING = 3
 
 
 class FlowLayout(QLayout):
@@ -108,16 +109,18 @@ class EntryListing(QListWidgetItem):
         super().__init__()
         self.mw = main_window
         self.entry = entry
-        print("Listing init")
+        # print("Listing init")
 
-        if view == EntryView.TEXT:
+        # TODO: Make this into a match statement
+        if view == EntryView.EXTENDED or view == EntryView.EVERYTHING:
+            self.setText(self.entry.name + "\n [" + self.entry.age_rating + "] " + self.entry.author + " - " + self.entry.series)
+        else:
             self.setText("[" + self.entry.age_rating + "] " + self.entry.author + ": " + self.entry.name)
-        elif view == EntryView.ICON or view == EntryView.EVERYTHING:
-            self.setText(self.entry.name + "\n [" + self.entry.age_rating + "] " + self.entry.author)
-        print("text set")
+        # print("text set")
         if view == EntryView.ICON or view == EntryView.EVERYTHING:
             print("Attempt icon: " + self.entry.cover_path)
-            self.setIcon(QIcon(self.entry.cover_path))
+            if self.entry.cover_path != "unknown":
+                self.setIcon(QIcon(self.entry.cover_path))
 
 
 class ClickLabel(QLabel):

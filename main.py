@@ -39,7 +39,7 @@ class MainWindow(QMainWindow):
         self.entry: db.Entry = self.database.entries[0]
 
         self.sorting = int(util.SortingElements.PATH.value)
-        self.view = 0
+        self.view: qt_util.EntryView = qt_util.EntryView.COMPACT
 
         self.setWindowTitle("MediAppl")
         self.setWindowIcon(QIcon('res/Icon.png'))
@@ -98,6 +98,32 @@ class MainWindow(QMainWindow):
         button_delete.setShortcut(QKeySequence("Del"))
         button_delete.triggered.connect(self.delete_entry)
 
+        button_view_shrink = QAction("Shrink", self)
+        button_view_shrink.setStatusTip("Shrink the List Entries")
+        button_view_shrink.setShortcut(QKeySequence("Ctrl+["))
+        button_view_shrink.triggered.connect(lambda: self.increment_view(-1))
+
+        button_view_grow = QAction("Grow", self)
+        button_view_grow.setStatusTip("Grow the List Entries")
+        button_view_grow.setShortcut(QKeySequence("Ctrl+]"))
+        button_view_grow.triggered.connect(lambda: self.increment_view(1))
+
+        button_view_compact = QAction("Compact", self)
+        button_view_compact.setStatusTip("Change to Compact View")
+        button_view_compact.triggered.connect(lambda: self.change_view(qt_util.EntryView.COMPACT))
+
+        button_view_icon = QAction("Icon", self)
+        button_view_icon.setStatusTip("Change to Icon View")
+        button_view_icon.triggered.connect(lambda: self.change_view(qt_util.EntryView.ICON))
+
+        button_view_extended = QAction("Extended", self)
+        button_view_extended.setStatusTip("Change to Extended View")
+        button_view_extended.triggered.connect(lambda: self.change_view(qt_util.EntryView.EXTENDED))
+
+        button_view_everything = QAction("Everything", self)
+        button_view_everything.setStatusTip("Change to Everything View")
+        button_view_everything.triggered.connect(lambda: self.change_view(qt_util.EntryView.EVERYTHING))
+
         button_preferences = QAction("Preferences", self)
         button_preferences.setStatusTip("Edit Database Preferences")
         button_preferences.setShortcut(QKeySequence("Ctrl+p"))
@@ -143,7 +169,6 @@ class MainWindow(QMainWindow):
         button_reverse.setShortcut(QKeySequence("Ctrl+h"))
         button_reverse.triggered.connect(self.reverse_entries)
 
-
         # Create Menu
         menu = self.menuBar()
 
@@ -166,6 +191,15 @@ class MainWindow(QMainWindow):
         entry_menu.addAction(button_open)
         entry_menu.addAction(button_edit)
         entry_menu.addAction(button_delete)
+
+        view_menu = menu.addMenu("&View")
+        view_menu.addAction(button_view_shrink)
+        view_menu.addAction(button_view_grow)
+        view_menu.addSeparator()
+        view_menu.addAction(button_view_compact)
+        view_menu.addAction(button_view_icon)
+        view_menu.addAction(button_view_extended)
+        view_menu.addAction(button_view_everything)
 
         filter_menu = menu.addMenu("&Filter")
         filter_menu.addAction(button_filter)
@@ -273,8 +307,8 @@ class MainWindow(QMainWindow):
             return
 
         appl_path = db_path+"/"+name+".appl"
-        with open(appl_path, "w", encoding="utf-8") as file:
-            file.write(name+"\n"+db_path+"/\n\n"+str(DEFAULT_APP_ASSOCIATIONS)+"\n0\n")
+        with open(appl_path, "w", encoding="utf-8") as f:
+            f.write(name+"\n"+db_path+"/\n\n"+str(DEFAULT_APP_ASSOCIATIONS)+"\n0\n")
         self.database = db.Database(appl_path)
         # self.database.load_files()
         loading_dialog = qt_util.LoadingDialog(self.database)
@@ -432,6 +466,15 @@ class MainWindow(QMainWindow):
         self.entries.reverse()
         self.update_entries_scroll()
 
+    def increment_view(self, amount: int):
+        val = (self.view.value + amount) % len(qt_util.EntryView)
+        self.view = qt_util.EntryView(val)
+        self.update_entries_scroll()
+
+    def change_view(self, view: qt_util.EntryView):
+        self.view = view
+        self.update_entries_scroll()
+
     def open_entry(self):
         print("Open Entry")
         path = self.database.db_dir + self.entry.path
@@ -526,8 +569,9 @@ class MainWindow(QMainWindow):
             print("needn't clear entries")
 
         for e in self.entries:
-            widget = qt_util.EntryListing(self, e, qt_util.EntryView.COVER)
+            widget = qt_util.EntryListing(self, e, self.view)
             self.list_dbEntries.addItem(widget)
+
         print("entry list updated")
 
 

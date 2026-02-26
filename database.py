@@ -12,7 +12,6 @@ SUPPORTED_VIDEO_FORMATS = {"mp4", "mov", "avi", "flv", "mkv"}
 SUPPORTED_AUDIO_FORMATS = {"mp3", "m4a", "ogg", "wav", "flac", "aiff"}
 SUPPORTED_TEXT_FORMATS = {"txt", "md"}
 
-
 #
 #
 # Entry Class
@@ -162,8 +161,8 @@ class Database:
 
         # App Associations
         self.app_associations = {a.split(":")[0].strip(): a.split(":")[1].strip() for a in (header[3]
-                                .replace("{", "").replace("}", "")
-                                .replace("\"", "").replace("'", "").split(","))}
+                                 .replace("{", "").replace("}", "")
+                                 .replace("\"", "").replace("'", "").split(","))}
         self.entry_count = int(header[4].strip())
 
         # Dictionary Setups

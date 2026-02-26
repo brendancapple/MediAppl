@@ -15,6 +15,7 @@ class EntryView(Enum):
     ICON = 1
     EXTENDED = 2
     EVERYTHING = 3
+    THUMBNAIL = 4
 
 
 class FlowLayout(QLayout):
@@ -105,38 +106,46 @@ class FlowLayout(QLayout):
 
 
 class EntryListing(QListWidgetItem):
+    DEFAULT_COVER = None
+
     def __init__(self, main_window, entry: db.Entry, view: EntryView):
         super().__init__()
         self.mw = main_window
         self.entry = entry
         # print("Listing init")
 
-        # TODO: Make this into a match statement
         match view:
             case EntryView.COMPACT:
-                self.set_text(True)
+                self.set_text(True, False)
             case EntryView.ICON:
-                self.set_text(True)
+                self.set_text(True, False)
                 self.set_image(False)
             case EntryView.EXTENDED:
-                self.set_text(False)
+                self.set_text(False, False)
             case EntryView.EVERYTHING:
-                self.set_text(False)
+                self.set_text(False, False)
                 self.set_image(False)
+            case EntryView.THUMBNAIL:
+                self.set_text(False, True)
+                self.set_image(True)
 
-    def set_text(self, compact: bool):
+    def set_text(self, compact: bool, extended: bool):
         if compact:
             self.setText("[" + self.entry.age_rating + "] " + self.entry.author + ": " + self.entry.name)
+        elif extended:
+            self.setText(self.entry.name
+                         + "\n\n [" + self.entry.age_rating + "] " + self.entry.author + " - " + self.entry.series
+                         + " vol." + str(self.entry.vol) + "\n " + str(self.entry.release) + ", "
+                         + str(self.entry.resolution[0]) + "x" + str(self.entry.resolution[1]) )
         else:
             self.setText(self.entry.name
                          + "\n [" + self.entry.age_rating + "] " + self.entry.author + " - " + self.entry.series)
 
     def set_image(self, full: bool):
         if self.entry.cover_path == "unknown":
-            return
-
-        if full:
-            pass  # TODO: Full Images
+            if self.DEFAULT_COVER is None:
+                self.DEFAULT_COVER = QIcon("res/placeholder.png")
+            self.setIcon(self.DEFAULT_COVER)
         else:
             self.setIcon(self.entry.get_cover_icon())
 

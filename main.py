@@ -124,6 +124,10 @@ class MainWindow(QMainWindow):
         button_view_everything.setStatusTip("Change to Everything View")
         button_view_everything.triggered.connect(lambda: self.change_view(qt_util.EntryView.EVERYTHING))
 
+        button_view_image = QAction("Thumbnail", self)
+        button_view_image.setStatusTip("Change to Thumbnail View")
+        button_view_image.triggered.connect(lambda: self.change_view(qt_util.EntryView.THUMBNAIL))
+
         button_preferences = QAction("Preferences", self)
         button_preferences.setStatusTip("Edit Database Preferences")
         button_preferences.setShortcut(QKeySequence("Ctrl+p"))
@@ -200,6 +204,7 @@ class MainWindow(QMainWindow):
         view_menu.addAction(button_view_icon)
         view_menu.addAction(button_view_extended)
         view_menu.addAction(button_view_everything)
+        view_menu.addAction(button_view_image)
 
         filter_menu = menu.addMenu("&Filter")
         filter_menu.addAction(button_filter)
@@ -230,6 +235,7 @@ class MainWindow(QMainWindow):
         self.list_dbEntries.itemActivated.connect(self.open_entry)
         self.list_dbEntries.itemDoubleClicked.connect(self.open_entry)
         self.list_dbEntries.itemSelectionChanged.connect(self.switch_entry_keyboard)
+        self.DEFAULT_ICON_SIZE = self.list_dbEntries.iconSize()
 
         self.vbox_db = QVBoxLayout()
         self.vbox_db.addWidget(self.label_dbName)
@@ -567,6 +573,18 @@ class MainWindow(QMainWindow):
             print("Entries cleared")
         else:
             print("needn't clear entries")
+
+        match self.view:
+            case qt_util.EntryView.THUMBNAIL:
+                self.list_dbEntries.setIconSize(QSize(int(self.list_dbEntries.width()/6),
+                                                      int(self.list_dbEntries.height()/6)))
+                self.list_dbEntries.setSpacing(10)
+            case qt_util.EntryView.EVERYTHING:
+                self.list_dbEntries.setIconSize(QSize(64, 64))
+                self.list_dbEntries.setSpacing(0)
+            case _:
+                self.list_dbEntries.setIconSize(self.DEFAULT_ICON_SIZE)
+                self.list_dbEntries.setSpacing(0)
 
         for e in self.entries:
             widget = qt_util.EntryListing(self, e, self.view)

@@ -6,7 +6,7 @@
 # Media Organizer for Local Files w/o Changing File Structures
 #
 #
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon, QKeySequence, QPixmap, QImage
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow,
@@ -39,6 +39,7 @@ class MainWindow(QMainWindow):
         self.entry: db.Entry = self.database.entries[0]
 
         self.sorting = int(util.SortingElements.PATH.value)
+        self.view = 0
 
         self.setWindowTitle("MediAppl")
         self.setWindowIcon(QIcon('res/Icon.png'))
@@ -525,7 +526,7 @@ class MainWindow(QMainWindow):
             print("needn't clear entries")
 
         for e in self.entries:
-            widget = qt_util.EntryListing(self, e)
+            widget = qt_util.EntryListing(self, e, qt_util.EntryView.COVER)
             self.list_dbEntries.addItem(widget)
         print("entry list updated")
 

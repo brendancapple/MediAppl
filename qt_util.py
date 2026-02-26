@@ -1,11 +1,19 @@
 from PyQt5.QtCore import QPoint, QRect, QSize, Qt, pyqtSignal
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QLayout, QPushButton, QSizePolicy, QWidget, QLabel, QTextEdit, QVBoxLayout, QDialog,
     QDialogButtonBox, QScrollArea, QTabWidget, QLineEdit, QHBoxLayout, QFileDialog, QListWidgetItem, QProgressBar)
 from functools import partial
+from enum import Enum
 
 import database as db
 import util
+
+
+class EntryView(Enum):
+    TEXT = 0
+    ICON = 1
+    EVERYTHING = 2
 
 
 class FlowLayout(QLayout):
@@ -96,12 +104,20 @@ class FlowLayout(QLayout):
 
 
 class EntryListing(QListWidgetItem):
-    def __init__(self, main_window, entry: db.Entry):
+    def __init__(self, main_window, entry: db.Entry, view: EntryView):
         super().__init__()
         self.mw = main_window
         self.entry = entry
+        print("Listing init")
 
-        self.setText("[" + self.entry.age_rating + "] " + self.entry.author + ": " + self.entry.name)
+        if view == EntryView.TEXT:
+            self.setText("[" + self.entry.age_rating + "] " + self.entry.author + ": " + self.entry.name)
+        elif view == EntryView.ICON or view == EntryView.EVERYTHING:
+            self.setText(self.entry.name + "\n [" + self.entry.age_rating + "] " + self.entry.author)
+        print("text set")
+        if view == EntryView.ICON or view == EntryView.EVERYTHING:
+            print("Attempt icon: " + self.entry.cover_path)
+            self.setIcon(QIcon(self.entry.cover_path))
 
 
 class ClickLabel(QLabel):
@@ -655,7 +671,6 @@ class EditDialog(QDialog):
         elif ext in db.SUPPORTED_TEXT_FORMATS:
             if "text" not in self.input_tags.text().lower():
                 entry_tags = "Text"
-
 
         if entry_cover != "":
             self.input_cover.setText(entry_cover)

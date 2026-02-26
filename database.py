@@ -1,6 +1,7 @@
 import os
 import json
 
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QProgressBar, QLabel
 
 import util
@@ -17,7 +18,7 @@ SUPPORTED_TEXT_FORMATS = {"txt", "md"}
 # Entry Class
 #
 # Relative Path
-# Cover Art Path
+# Cover Art Path (Plus Cover Art Thumbnail Cache)
 # Name
 # Author
 # Series, Vol
@@ -50,6 +51,7 @@ class Entry:
         self.release = release
         self.resolution = resolution
         self.tags = tags
+        self.cover_cache: QIcon = None
 
     def __str__(self):
         return ('path: ' + self.path +
@@ -64,6 +66,11 @@ class Entry:
                 '   resolution: ' + str(self.resolution) +
                 '   tags: ' + str(self.tags)
                 )
+
+    def get_cover_icon(self):
+        if self.cover_cache is None:
+            self.cover_cache = QIcon(self.cover_path)
+        return self.cover_cache
 
     def create_sorting_string(self, elements: int):
         print(elements)

@@ -120,7 +120,7 @@ class EntryListing(QListWidgetItem):
         if view == EntryView.ICON or view == EntryView.EVERYTHING:
             print("Attempt icon: " + self.entry.cover_path)
             if self.entry.cover_path != "unknown":
-                self.setIcon(QIcon(self.entry.cover_path))
+                self.setIcon(self.entry.get_cover_icon())
 
 
 class ClickLabel(QLabel):

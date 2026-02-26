@@ -51,7 +51,7 @@ class Entry:
         self.release = release
         self.resolution = resolution
         self.tags = tags
-        self.cover_cache: QIcon = None
+        self.cover_cache = None
 
     def __str__(self):
         return ('path: ' + self.path +

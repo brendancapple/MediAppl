@@ -112,15 +112,33 @@ class EntryListing(QListWidgetItem):
         # print("Listing init")
 
         # TODO: Make this into a match statement
-        if view == EntryView.EXTENDED or view == EntryView.EVERYTHING:
-            self.setText(self.entry.name + "\n [" + self.entry.age_rating + "] " + self.entry.author + " - " + self.entry.series)
-        else:
+        match view:
+            case EntryView.COMPACT:
+                self.set_text(True)
+            case EntryView.ICON:
+                self.set_text(True)
+                self.set_image(False)
+            case EntryView.EXTENDED:
+                self.set_text(False)
+            case EntryView.EVERYTHING:
+                self.set_text(False)
+                self.set_image(False)
+
+    def set_text(self, compact: bool):
+        if compact:
             self.setText("[" + self.entry.age_rating + "] " + self.entry.author + ": " + self.entry.name)
-        # print("text set")
-        if view == EntryView.ICON or view == EntryView.EVERYTHING:
-            print("Attempt icon: " + self.entry.cover_path)
-            if self.entry.cover_path != "unknown":
-                self.setIcon(self.entry.get_cover_icon())
+        else:
+            self.setText(self.entry.name
+                         + "\n [" + self.entry.age_rating + "] " + self.entry.author + " - " + self.entry.series)
+
+    def set_image(self, full: bool):
+        if self.entry.cover_path == "unknown":
+            return
+
+        if full:
+            pass  # TODO: Full Images
+        else:
+            self.setIcon(self.entry.get_cover_icon())
 
 
 class ClickLabel(QLabel):

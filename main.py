@@ -549,8 +549,7 @@ class MainWindow(QMainWindow):
             if path == "unknown":
                 item.setIcon(qt_util.EntryListing.DEFAULT_COVER)
             else:
-                item.setIcon(self.entries[i].get_cover_icon())
-        pass
+                item.setIcon(self.entries[i].get_cover_icon(int(self.screen.size().width()/6), int(self.screen.size().height())))
 
     def update_ui(self):
         print("Update UI")

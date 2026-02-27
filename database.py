@@ -1,7 +1,8 @@
 import os
 import json
 
-from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QProgressBar, QLabel
 
 import util
@@ -66,10 +67,10 @@ class Entry:
                 '   tags: ' + str(self.tags)
                 )
 
-    def get_cover_icon(self):
+    def get_cover_icon(self, width, height):
         if self.cover_cache is None:
-            # TODO: Get smaller image size for cache
-            self.cover_cache = QIcon(self.cover_path)
+            small_pixmap = QPixmap(self.cover_path).scaled(width, height, Qt.KeepAspectRatio, Qt.FastTransformation)
+            self.cover_cache = QIcon(small_pixmap)
         return self.cover_cache
 
     def create_sorting_string(self, elements: int):

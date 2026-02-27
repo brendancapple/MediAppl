@@ -1,5 +1,4 @@
 from PyQt5.QtCore import QPoint, QRect, QSize, Qt, pyqtSignal
-from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QLayout, QPushButton, QSizePolicy, QWidget, QLabel, QTextEdit, QVBoxLayout, QDialog,
     QDialogButtonBox, QScrollArea, QTabWidget, QLineEdit, QHBoxLayout, QFileDialog, QListWidgetItem, QProgressBar)

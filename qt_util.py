@@ -114,20 +114,21 @@ class EntryListing(QListWidgetItem):
         self.entry = entry
         # print("Listing init")
 
+        # TODO: Set image stuff goes to Lazy Load System
         match view:
             case EntryView.COMPACT:
                 self.set_text(True, False)
             case EntryView.ICON:
                 self.set_text(True, False)
-                self.set_image(False)
+                # self.set_image()
             case EntryView.EXTENDED:
                 self.set_text(False, False)
             case EntryView.EVERYTHING:
                 self.set_text(False, False)
-                self.set_image(False)
+                # self.set_image()
             case EntryView.THUMBNAIL:
                 self.set_text(False, True)
-                self.set_image(True)
+                # self.set_image()
 
     def set_text(self, compact: bool, extended: bool):
         if compact:
@@ -141,10 +142,8 @@ class EntryListing(QListWidgetItem):
             self.setText(self.entry.name
                          + "\n [" + self.entry.age_rating + "] " + self.entry.author + " - " + self.entry.series)
 
-    def set_image(self, full: bool):
+    def set_image(self):
         if self.entry.cover_path == "unknown":
-            if self.DEFAULT_COVER is None:
-                self.DEFAULT_COVER = QIcon("res/placeholder.png")
             self.setIcon(self.DEFAULT_COVER)
         else:
             self.setIcon(self.entry.get_cover_icon())

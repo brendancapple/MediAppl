@@ -68,6 +68,7 @@ class Entry:
 
     def get_cover_icon(self):
         if self.cover_cache is None:
+            # TODO: Get smaller image size for cache
             self.cover_cache = QIcon(self.cover_path)
         return self.cover_cache
 

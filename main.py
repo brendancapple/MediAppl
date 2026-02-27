@@ -18,6 +18,7 @@ from PyQt5.QtWidgets import (
     QDialog, QFileDialog, QInputDialog,
 )
 from functools import partial
+import threading
 import subprocess
 import sys
 import os
@@ -40,6 +41,7 @@ class MainWindow(QMainWindow):
 
         self.sorting = int(util.SortingElements.PATH.value)
         self.view: qt_util.EntryView = qt_util.EntryView.COMPACT
+        self.lazy_load_bounds = (0, 0)
 
         self.setWindowTitle("MediAppl")
         self.setWindowIcon(QIcon('res/Icon.png'))
@@ -232,9 +234,12 @@ class MainWindow(QMainWindow):
 
         self.list_dbEntries = QListWidget()
         self.list_dbEntries.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.list_dbEntries.setMouseTracking(True)
         self.list_dbEntries.itemActivated.connect(self.open_entry)
         self.list_dbEntries.itemDoubleClicked.connect(self.open_entry)
         self.list_dbEntries.itemSelectionChanged.connect(self.switch_entry_keyboard)
+        self.list_dbEntries.itemEntered.connect(self.check_lazy_load)
+        qt_util.EntryListing.DEFAULT_COVER = QIcon("res/placeholder.png")
         self.DEFAULT_ICON_SIZE = self.list_dbEntries.iconSize()
 
         self.vbox_db = QVBoxLayout()
@@ -512,6 +517,41 @@ class MainWindow(QMainWindow):
         if preferences_dialog.exec_():
             self.update_ui()
 
+    def check_lazy_load(self):
+        # print("Check lazy load")
+        if self.view == qt_util.EntryView.ICON or self.view == qt_util.EntryView.EVERYTHING or self.view == qt_util.EntryView.THUMBNAIL:
+            # print("Load Icons")
+            rect = self.list_dbEntries.viewport().contentsRect()
+            indices = [self.list_dbEntries.indexAt(rect.topLeft()).row(),
+                       self.list_dbEntries.indexAt(rect.bottomLeft()).row()]
+            if indices[1] < 0:
+                indices[1] = self.list_dbEntries.count()
+
+            if (self.lazy_load_bounds[0] - indices[0]) > 0:
+                indices[1] = self.lazy_load_bounds[0]
+                self.lazy_load_bounds = (indices[0], self.lazy_load_bounds[1])
+            elif (indices[1] - self.lazy_load_bounds[1]) > 0:
+                indices[0] = self.lazy_load_bounds[1]
+                self.lazy_load_bounds = (self.lazy_load_bounds[0], indices[1])
+            else:
+                return
+
+            # print(" Bounds: " + str(indices[0]) + " : " + str(indices[1]))
+            threading.Thread(target=self.update_icons, args=(indices[0], indices[1])).start()
+
+    def update_icons(self, lower_bound: int, upper_bound: int):
+        # print("Recieved Bounds: " + str(lower_bound) + " : " + str(upper_bound))
+        for i in range(lower_bound, upper_bound):
+            path = self.entries[i].cover_path
+            item = self.list_dbEntries.item(i)
+            if item is None:
+                continue
+            if path == "unknown":
+                item.setIcon(qt_util.EntryListing.DEFAULT_COVER)
+            else:
+                item.setIcon(self.entries[i].get_cover_icon())
+        pass
+
     def update_ui(self):
         print("Update UI")
         self.input_dbSearchbar.setText("")
@@ -530,6 +570,7 @@ class MainWindow(QMainWindow):
         index = self.list_dbEntries.currentIndex().row()
         self.entry = self.entries[index]
         success = self.update_entry_vbox()
+        self.check_lazy_load()
         print("entry Updated ", success)
 
     def update_entry_vbox(self):
@@ -585,6 +626,9 @@ class MainWindow(QMainWindow):
             case _:
                 self.list_dbEntries.setIconSize(self.DEFAULT_ICON_SIZE)
                 self.list_dbEntries.setSpacing(0)
+
+        # TODO: Lazy loading for image icons
+        self.lazy_load_bounds = (0, 0)
 
         for e in self.entries:
             widget = qt_util.EntryListing(self, e, self.view)

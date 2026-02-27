@@ -112,9 +112,7 @@ class EntryListing(QListWidgetItem):
         super().__init__()
         self.mw = main_window
         self.entry = entry
-        # print("Listing init")
 
-        # TODO: Set image stuff goes to Lazy Load System
         match view:
             case EntryView.COMPACT:
                 self.set_text(True, False)
@@ -141,12 +139,6 @@ class EntryListing(QListWidgetItem):
         else:
             self.setText(self.entry.name
                          + "\n [" + self.entry.age_rating + "] " + self.entry.author + " - " + self.entry.series)
-
-    def set_image(self):
-        if self.entry.cover_path == "unknown":
-            self.setIcon(self.DEFAULT_COVER)
-        else:
-            self.setIcon(self.entry.get_cover_icon())
 
 
 class ClickLabel(QLabel):

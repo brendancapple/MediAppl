@@ -627,13 +627,13 @@ class MainWindow(QMainWindow):
                 self.list_dbEntries.setIconSize(self.DEFAULT_ICON_SIZE)
                 self.list_dbEntries.setSpacing(0)
 
-        # TODO: Lazy loading for image icons
         self.lazy_load_bounds = (0, 0)
 
         for e in self.entries:
             widget = qt_util.EntryListing(self, e, self.view)
             self.list_dbEntries.addItem(widget)
 
+        self.check_lazy_load()
         print("entry list updated")
 
 

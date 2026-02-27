@@ -113,6 +113,7 @@ class EntryListing(QListWidgetItem):
         self.mw = main_window
         self.entry = entry
 
+
         match view:
             case EntryView.COMPACT:
                 self.set_text(True, False)
@@ -125,6 +126,7 @@ class EntryListing(QListWidgetItem):
                 self.set_text(False, False)
                 # self.set_image()
             case EntryView.THUMBNAIL:
+                self.setSizeHint(QSize(int(self.mw.width()), int(self.mw.height() / 6)))
                 self.set_text(False, True)
                 # self.set_image()
 
@@ -133,12 +135,12 @@ class EntryListing(QListWidgetItem):
             self.setText("[" + self.entry.age_rating + "] " + self.entry.author + ": " + self.entry.name)
         elif extended:
             self.setText(self.entry.name
-                         + "\n\n [" + self.entry.age_rating + "] " + self.entry.author + " - " + self.entry.series
-                         + " vol." + str(self.entry.vol) + "\n " + str(self.entry.release) + ", "
-                         + str(self.entry.resolution[0]) + "x" + str(self.entry.resolution[1]) )
+                         + "\n\n    [" + self.entry.age_rating + "] " + self.entry.author + " - " + self.entry.series
+                         + " vol." + str(self.entry.vol) + "\n    " + str(self.entry.release) + ", "
+                         + str(self.entry.resolution[0]) + "x" + str(self.entry.resolution[1]))
         else:
             self.setText(self.entry.name
-                         + "\n [" + self.entry.age_rating + "] " + self.entry.author + " - " + self.entry.series)
+                         + "\n    [" + self.entry.age_rating + "] " + self.entry.author + " - " + self.entry.series)
 
 
 class ClickLabel(QLabel):

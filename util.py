@@ -186,7 +186,13 @@ def cache_video_cover(db_dir: str, cache: str, vid_path: str) -> str:
         video = cv2.VideoCapture(vid_path)
     except:
         return "unknown"
-    total_frames = video.get(cv2.CAP_PROP_FRAME_COUNT)
+
+    try:
+        total_frames = video.get(cv2.CAP_PROP_FRAME_COUNT)
+    except:
+        print("cannot get center")
+        return "unknown"
+
     mid_frame = int(total_frames/3)
     print(mid_frame, "/", total_frames)
 

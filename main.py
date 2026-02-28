@@ -546,7 +546,7 @@ class MainWindow(QMainWindow):
             item = self.list_dbEntries.item(i)
             if item is None:
                 continue
-            if path == "unknown":
+            if not os.path.exists(path):
                 item.setIcon(qt_util.EntryListing.DEFAULT_COVER)
             else:
                 item.setIcon(self.entries[i].get_cover_icon(int(self.screen.size().width()/6), int(self.screen.size().height())))

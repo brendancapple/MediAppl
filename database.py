@@ -1,5 +1,6 @@
 import os
 import json
+import re
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QPixmap
@@ -252,8 +253,8 @@ class Database:
         for file in all_files:
             current_file += 1
             file = file.replace("\\", "/")
-            # print(file)
-            if file[len(self.db_dir):][:len(CACHE_DIR)] == CACHE_DIR:
+            print(file)
+            if ("/" + CACHE_DIR + "/") in file:
                 print("cached")
                 continue
             if "._" in file:
@@ -315,6 +316,9 @@ class Database:
             if entry_year is None:
                 print("fix year")
                 entry_year = 0
+            elif not isinstance(entry_year, int):
+                print("fix string year")
+                entry_year = int(re.sub("[^0-9]", "", entry_year)[:4])
             if len(entry_tags) <= 0:
                 print("fix tags")
                 entry_tags = ['Unknown']
@@ -323,8 +327,10 @@ class Database:
             entry = Entry(file[len(self.db_dir):], entry_cover, entry_name,
                           entry_author, entry_series, int(entry_vol), entry_lang, "NA", int(entry_year),
                           entry_res, entry_tags)
+            print("created entry")
 
             self.add_entry(entry)
+            print("added to entries")
             if bar is not None:
                 bar.setValue(current_file)
                 label.setText(str(current_file) + "/" + str(total_files))

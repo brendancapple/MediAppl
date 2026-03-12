@@ -7,15 +7,15 @@
 #
 #
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QIcon, QKeySequence, QPixmap, QImage
+from PyQt5.QtGui import QIcon, QKeySequence, QPixmap
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow,
     QWidget,
-    QStatusBar, QToolBar, QAction,
-    QLayout, QVBoxLayout, QHBoxLayout,
+    QStatusBar, QAction,
+    QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QLineEdit,
-    QListWidget, QListWidgetItem, QAbstractItemView,
-    QDialog, QFileDialog, QInputDialog,
+    QListWidget, QAbstractItemView,
+    QFileDialog, QInputDialog,
 )
 from functools import partial
 import threading
@@ -23,9 +23,9 @@ import subprocess
 import sys
 import os
 
-import database as db
-import qt_util
-import util
+import src.database as db
+import src.qt_util as qt_util
+import src.util as util
 
 ENTRY_LISTING_HEIGHT = 60
 DEFAULT_APP_ASSOCIATIONS = {"mp3": "vlc", "txt": "vim"}

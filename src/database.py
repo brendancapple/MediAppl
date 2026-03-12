@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QProgressBar, QLabel
 
-import util
+import src.util as util
 
 CACHE_DIR = ".cache"
 SUPPORTED_IMAGE_FORMATS = {"bmp", "png", "jpg", "jpeg", "gif", "cur", "ico", "jfif", "pbm", "pgm", "ppm", "svg", "svgz", "xbm", "xpm"}
@@ -212,7 +212,7 @@ class Database:
             for tag in entry.tags:
                 util.dictionary_list_add(self.tags, tag.lower(), entry)
             if "." in entry.path:
-                util.dictionary_list_add(self.extensions, entry.path[entry.path.rfind(".")+1:], entry)
+                util.dictionary_list_add(self.extensions, entry.path[entry.path.rfind(".") + 1:], entry)
 
     def add_entry(self, entry):
         self.entries.append(entry)

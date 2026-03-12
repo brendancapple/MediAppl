@@ -5,8 +5,8 @@ from PyQt5.QtWidgets import (
 from functools import partial
 from enum import Enum
 
-import database as db
-import util
+import src.database as db
+import src.util as util
 
 
 class EntryView(Enum):

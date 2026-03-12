@@ -1,3 +1,4 @@
 *.appl
 build
 dist
+__pycache__

@@ -321,7 +321,6 @@ class MainWindow(QMainWindow):
         with open(appl_path, "w", encoding="utf-8") as f:
             f.write(name+"\n"+db_path+"/\n\n"+str(DEFAULT_APP_ASSOCIATIONS)+"\n0\n")
         self.database = db.Database(appl_path)
-        # self.database.load_files()
         loading_dialog = qt_util.LoadingDialog(self.database)
         loading_dialog.exec()
         self.database.save_as_file(appl_path)
@@ -384,7 +383,6 @@ class MainWindow(QMainWindow):
 
     def reload_database(self):
         print("Reload Database From Disk")
-        # self.database.load_files()
         loading_dialog = qt_util.LoadingDialog(self.database)
         loading_dialog.exec()
         self.update_ui()

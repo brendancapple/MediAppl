@@ -93,7 +93,16 @@ found where these dictionaries overlap.
 [Tag1] [Tag2] Name of Entry
 ```
 The two types of searches may be performed simultaneously
-in the search bar.
+in the search bar. Note that all filters must come prior to the query.
+This allows `'['` and `']'` to be searched as part of a normal search.
+
+##### Sorting
+Sorting is available in the sorting tab. 
+The sortable fields are ordered from highest to lowest priority.
+Many can be selected at once.
+
+User-specified sorting resets during search to allow relevance-based sorting.
+
 
 ## Install
 1. Download ZIP release for your operating system (currently windows only)

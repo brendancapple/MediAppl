@@ -583,17 +583,18 @@ class MainWindow(QMainWindow):
         self.label_entryResolution.setText("Resolution: " + str(entry.resolution[0]) + "x" + str(entry.resolution[1]))
         self.label_entryTags.setText("Tags: " + str(entry.tags))
 
+        self.label_entryCover.setScaledContents(False)
+        self.label_entryCover.setMaximumWidth(max(int(self.width() * 0.33), self.label_entryCover.parentWidget().width()))
+
         if os.path.isfile(entry.cover_path):
-            image = QPixmap(entry.cover_path).scaled(int(self.screen.size().width()*0.25),
-                                                     int(self.screen.size().height()*0.25), Qt.KeepAspectRatio)
+            image = QPixmap(entry.cover_path)
+            image = image.scaled(int(self.label_entryCover.width()), int(self.height() * 0.5), Qt.KeepAspectRatio)
             self.label_entryCover.setPixmap(image)
-            self.label_entryCover.setScaledContents(True)
             return True
 
-        image = QPixmap("res/placeholder.png").scaled(int(self.screen.size().width()*0.25),
-                                                      int(self.screen.size().height()*0.25), Qt.KeepAspectRatio)
+        image = QPixmap("res/placeholder.png")
+        image = image.scaled(int(self.label_entryCover.width()), int(self.height() * 0.5), Qt.KeepAspectRatio)
         self.label_entryCover.setPixmap(image)
-        self.label_entryCover.setScaledContents(True)
         # print("Unknown Cover")
         return False
 

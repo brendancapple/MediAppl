@@ -9,10 +9,12 @@ from PyQt5.QtWidgets import QProgressBar, QLabel
 import src.util as util
 
 CACHE_DIR = ".cache"
-SUPPORTED_IMAGE_FORMATS = {"bmp", "png", "jpg", "jpeg", "gif", "cur", "ico", "jfif", "pbm", "pgm", "ppm", "svg", "svgz", "xbm", "xpm"}
+SUPPORTED_IMAGE_FORMATS = {"bmp", "png", "jpg", "jpeg", "gif", "cur", "ico", "jfif", "pbm", "pgm", "ppm", "svg", "svgz",
+                           "xbm", "xpm"}
 SUPPORTED_VIDEO_FORMATS = {"mp4", "mov", "avi", "flv", "mkv"}
 SUPPORTED_AUDIO_FORMATS = {"mp3", "m4a", "ogg", "wav", "flac", "aiff"}
 SUPPORTED_TEXT_FORMATS = {"txt", "md"}
+
 
 #
 #
@@ -164,8 +166,10 @@ class Database:
 
         # App Associations
         self.app_associations = {a.split(":")[0].strip(): a.split(":")[1].strip() for a in (header[3]
-                                 .replace("{", "").replace("}", "")
-                                 .replace("\"", "").replace("'", "").split(","))}
+                                                                                            .replace("{", "").replace(
+            "}", "")
+                                                                                            .replace("\"", "").replace(
+            "'", "").split(","))}
         self.entry_count = int(header[4].strip())
 
         # Dictionary Setups
@@ -247,7 +251,7 @@ class Database:
             print("preset")
             bar.setMaximum(total_files)
             bar.setValue(current_file)
-            label.setText(str(current_file)+"/"+str(total_files))
+            label.setText(str(current_file) + "/" + str(total_files))
             print("post-set")
 
         for file in all_files:
@@ -261,8 +265,8 @@ class Database:
                 print("found ._ in " + file)
                 continue
 
-            entry_name = file[file.rfind("/")+1:file.rfind(".")]
-            entry_ext = file[file.rfind(".")+1:]
+            entry_name = file[file.rfind("/") + 1:file.rfind(".")]
+            entry_ext = file[file.rfind(".") + 1:]
             entry_cover = "unknown"
             entry_lang = None
             entry_author = None
@@ -292,7 +296,8 @@ class Database:
                 entry_res = util.get_image_resolution(file)
                 entry_tags = ['Image']
             elif entry_ext in SUPPORTED_AUDIO_FORMATS:
-                entry_name, entry_author, entry_series, entry_vol, entry_year, entry_genre = util.get_audio_metadata(file)
+                entry_name, entry_author, entry_series, entry_vol, entry_year, entry_genre = util.get_audio_metadata(
+                    file)
                 entry_cover = util.cache_audio_cover(self.db_dir, CACHE_DIR, file)
                 entry_tags = ['Audio', entry_genre] if entry_genre is not None else ['Audio']
             elif entry_ext.lower() in SUPPORTED_TEXT_FORMATS:
@@ -323,7 +328,8 @@ class Database:
                 print("fix tags")
                 entry_tags = ['Unknown']
 
-            print(entry_name, entry_lang, entry_author, entry_series, entry_vol, entry_lang, entry_year, entry_res, entry_tags)
+            print(entry_name, entry_lang, entry_author, entry_series, entry_vol, entry_lang, entry_year, entry_res,
+                  entry_tags)
             entry = Entry(file[len(self.db_dir):], entry_cover, entry_name,
                           entry_author, entry_series, int(entry_vol), entry_lang, "NA", int(entry_year),
                           entry_res, entry_tags)
@@ -338,24 +344,24 @@ class Database:
 
     def save_as_file(self, filepath: str):
         text = (
-            self.name + "\n" +
-            self.db_dir + "\n\n" +
-            str(self.app_associations) + "\n" +
-            str(self.entry_count) + "\n"
+                self.name + "\n" +
+                self.db_dir + "\n\n" +
+                str(self.app_associations) + "\n" +
+                str(self.entry_count) + "\n"
         )
 
         for entry in self.entries:
             text = (
-                text + "\n---\n\n"
-                + entry.path + "\n"
-                + entry.cover_path + "\n"
-                + entry.name + "\n"
-                + entry.author + "\n"
-                + entry.series + ", " + str(entry.vol) + "\n"
-                + entry.language + ", " + entry.age_rating + "\n"
-                + str(entry.release) + "\n"
-                + str(entry.resolution[0]) + "x" + str(entry.resolution[1]) + "\n"
-                + str(entry.tags)[1:-1].replace("'", "") + "\n"
+                    text + "\n---\n\n"
+                    + entry.path + "\n"
+                    + entry.cover_path + "\n"
+                    + entry.name + "\n"
+                    + entry.author + "\n"
+                    + entry.series + ", " + str(entry.vol) + "\n"
+                    + entry.language + ", " + entry.age_rating + "\n"
+                    + str(entry.release) + "\n"
+                    + str(entry.resolution[0]) + "x" + str(entry.resolution[1]) + "\n"
+                    + str(entry.tags)[1:-1].replace("'", "") + "\n"
             )
 
         with open(filepath, "w", encoding="utf-8") as file:
@@ -437,7 +443,7 @@ class Database:
     def set_release(self, entry: Entry, release: int):
         entry.release = release
 
-    def set_resolution(self, entry: Entry, x: int, y:int):
+    def set_resolution(self, entry: Entry, x: int, y: int):
         entry.resolution = (x, y)
 
     def add_tag(self, entry: Entry, tag: str):
@@ -467,87 +473,99 @@ class Database:
         self.entry_count -= 1
 
     def search(self, query: str):
-        query = query.strip()
+        filters = [item.lower().strip() for item in query.split("]")]
+
+        final_filter_index = -1
+        for i in range(len(filters)):
+            print(filters[i])
+            if filters[i] == "":
+                continue
+            if filters[i][0] != "[":
+                final_filter_index = i
+                break
+            filters[i] = filters[i].replace("[", "")
+        print(str(final_filter_index))
+
+        query = " ".join(filters[final_filter_index:])
+        filters = filters[:final_filter_index]
+        print(filters)
+        print(query)
+
         words = list(util.powerset(query.split(" "))[1:])
         print(words)
 
         output_dict = dict()
         filtered_set = set(self.entries)
 
-        for word in words:
-            word = word.lower().strip()
-
-            if word.count("[") > 1:
-                continue
-            filtered = "[" == word[0] and "]" == word[-1]
+        for filt in filters:
             temp_filtered_set = set()
-            word = word.replace("[", "").replace("]", "")
+            if filt in self.tags:
+                for entry in self.tags[filt]:
+                    if entry not in filtered_set:
+                        continue
+                    temp_filtered_set.add(entry)
+                    util.dictionary_force_increment(output_dict, entry)
+            if filt in self.languages:
+                for entry in self.languages[filt]:
+                    if entry not in filtered_set:
+                        continue
+                    temp_filtered_set.add(entry)
+                    util.dictionary_force_increment(output_dict, entry)
+            if filt in self.authors:
+                for entry in self.authors[filt]:
+                    if entry not in filtered_set:
+                        continue
+                    temp_filtered_set.add(entry)
+                    util.dictionary_force_increment(output_dict, entry)
+            if filt in self.series:
+                for entry in self.series[filt]:
+                    if entry not in filtered_set:
+                        continue
+                    temp_filtered_set.add(entry)
+                    util.dictionary_force_increment(output_dict, entry)
+            if filt in self.age_ratings:
+                for entry in self.age_ratings[filt]:
+                    if entry not in filtered_set:
+                        continue
+                    temp_filtered_set.add(entry)
+                    util.dictionary_force_increment(output_dict, entry)
+            if filt in self.extensions:
+                for entry in self.extensions[filt]:
+                    if entry not in filtered_set:
+                        continue
+                    temp_filtered_set.add(entry)
+                    util.dictionary_force_increment(output_dict, entry)
+            filtered_set = temp_filtered_set
+        print("o: " + str(output_dict))
+        print("s: " + str(filtered_set))
 
+        for word in words:
             if word in self.tags:
                 for entry in self.tags[word]:
-                    if filtered and entry in filtered_set:
-                        temp_filtered_set.add(entry)
-                    if entry not in output_dict:
-                        output_dict[entry] = 1
-                    else:
-                        output_dict[entry] += 1
+                    util.dictionary_force_increment(output_dict, entry)
             if word in self.languages:
                 for entry in self.languages[word]:
-                    if filtered and entry in filtered_set:
-                        temp_filtered_set.add(entry)
-                    if entry not in output_dict:
-                        output_dict[entry] = 1
-                    else:
-                        output_dict[entry] += 1
+                    util.dictionary_force_increment(output_dict, entry)
             if word in self.authors:
                 for entry in self.authors[word]:
-                    if filtered and entry in filtered_set:
-                        temp_filtered_set.add(entry)
-                    if entry not in output_dict:
-                        output_dict[entry] = 1
-                    else:
-                        output_dict[entry] += 1
+                    util.dictionary_force_increment(output_dict, entry)
             if word in self.series:
                 for entry in self.series[word]:
-                    if filtered and entry in filtered_set:
-                        temp_filtered_set.add(entry)
-                    if entry not in output_dict:
-                        output_dict[entry] = 1
-                    else:
-                        output_dict[entry] += 1
+                    util.dictionary_force_increment(output_dict, entry)
             if word in self.age_ratings:
                 for entry in self.age_ratings[word]:
-                    if filtered and entry in filtered_set:
-                        temp_filtered_set.add(entry)
-                    if entry not in output_dict:
-                        output_dict[entry] = 1
-                    else:
-                        output_dict[entry] += 1
+                    util.dictionary_force_increment(output_dict, entry)
             if word in self.extensions:
                 for entry in self.extensions[word]:
-                    if filtered and entry in filtered_set:
-                        temp_filtered_set.add(entry)
-                    if entry not in output_dict:
-                        output_dict[entry] = 1
-                    else:
-                        output_dict[entry] += 1
+                    util.dictionary_force_increment(output_dict, entry)
 
             for entry in self.entries:
                 name = entry.name.lower()
                 if word in name:
-                    if entry not in output_dict:
-                        output_dict[entry] = 1
-                    else:
-                        output_dict[entry] += 1
+                    util.dictionary_force_increment(output_dict, entry)
                 path = entry.path.lower()
                 if word in path:
-                    if entry not in output_dict:
-                        output_dict[entry] = 1
-                    else:
-                        output_dict[entry] += 1
-
-            if filtered:
-                filtered_set = temp_filtered_set
+                    util.dictionary_force_increment(output_dict, entry)
 
         output_dict = {key: value for key, value in sorted(output_dict.items(), key=lambda item: item[1], reverse=True)}
         print(output_dict)

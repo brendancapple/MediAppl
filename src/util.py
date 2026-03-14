@@ -101,6 +101,13 @@ def dictionary_list_remove(d: dict, k, e):
         d.pop(k)
 
 
+def dictionary_force_increment(d: dict, k):
+    if k not in d:
+        d[k] = 1
+    else:
+        d[k] += 1
+
+
 # Set Operations
 def powerset(s):
     n = len(s)

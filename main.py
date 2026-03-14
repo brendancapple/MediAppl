@@ -407,7 +407,7 @@ class MainWindow(QMainWindow):
         print("Search Filter")
         tag_dialog = qt_util.FilterDialog(self.database, 0)
         if tag_dialog.exec_():
-            self.input_dbSearchbar.setText(self.input_dbSearchbar.text() + " " + tag_dialog.get_output())
+            self.input_dbSearchbar.setText(tag_dialog.get_output() + " " + self.input_dbSearchbar.text())
             self.search_entries()
 
     def search_authors(self):

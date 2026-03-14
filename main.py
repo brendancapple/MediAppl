@@ -584,19 +584,19 @@ class MainWindow(QMainWindow):
         self.label_entryTags.setText("Tags: " + str(entry.tags))
 
         self.label_entryCover.setScaledContents(False)
-        self.label_entryCover.setMaximumWidth(max(int(self.width() * 0.33), self.label_entryCover.parentWidget().width()))
 
-        if os.path.isfile(entry.cover_path):
+        image: QPixmap
+        exists = os.path.isfile(entry.cover_path)
+        if exists:
             image = QPixmap(entry.cover_path)
+            image = image.scaled(max(int(self.label_entryCover.width()), int(self.width() * 0.3)),
+                                 int(self.height() * 0.5), Qt.KeepAspectRatio)
+        else:
+            image = QPixmap("res/placeholder.png")
             image = image.scaled(int(self.label_entryCover.width()), int(self.height() * 0.5), Qt.KeepAspectRatio)
-            self.label_entryCover.setPixmap(image)
-            return True
-
-        image = QPixmap("res/placeholder.png")
-        image = image.scaled(int(self.label_entryCover.width()), int(self.height() * 0.5), Qt.KeepAspectRatio)
         self.label_entryCover.setPixmap(image)
         # print("Unknown Cover")
-        return False
+        return exists
 
     def update_entries_scroll(self):
         if self.entries is None:

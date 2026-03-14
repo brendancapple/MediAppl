@@ -181,13 +181,10 @@ class Database:
         self.loading_total = 0
         self.loading_current = 0
 
-        print("Header Read")
-
         # Items
         self.entries: [Entry] = []
         for e in entries:
             lines = e.split("\n")[1:]
-            print(lines[1])
 
             # print(lines)
             entry = Entry(

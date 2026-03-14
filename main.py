@@ -391,6 +391,8 @@ class MainWindow(QMainWindow):
         query = self.input_dbSearchbar.text().strip()
         print("Search: " + query)
 
+        self.sorting = 0  # Clear Sorting to allow for search relevance ordering
+
         if query == "":
             self.entries = self.database.entries
             print("empty query")

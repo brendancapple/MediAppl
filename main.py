@@ -17,7 +17,6 @@ from PyQt5.QtWidgets import (
     QListWidget, QAbstractItemView,
     QFileDialog, QInputDialog,
 )
-from functools import partial
 import threading
 import subprocess
 import sys

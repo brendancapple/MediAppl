@@ -132,12 +132,14 @@ class SortingElements(Enum):
     RESOLUTION = 256
     TAGS = 512
 
+
 # Hashing
 def hash_string(string: str) -> int:
     total = 0
     for c in string:
         total += ord(c)
     return total
+
 
 # Metadata Grabbing
 def get_epub_metadata(epub_path: str):

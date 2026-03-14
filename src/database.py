@@ -181,10 +181,13 @@ class Database:
         self.loading_total = 0
         self.loading_current = 0
 
+        print("Header Read")
+
         # Items
         self.entries: [Entry] = []
         for e in entries:
             lines = e.split("\n")[1:]
+            print(lines[1])
 
             # print(lines)
             entry = Entry(
@@ -192,10 +195,10 @@ class Database:
                 cover_path=lines[2],
                 name=lines[3],
                 author=lines[4],
-                series=lines[5].split(",")[0].strip(),
-                vol=int(lines[5].split(",")[1].strip()),
+                series=",".join(lines[5].split(",")[0:-1]).strip(),
+                vol=int(lines[5].split(",")[-1].strip()),
                 language=lines[6].split(",")[0].strip(),
-                age_rating=lines[6].split(",")[1].strip(),
+                age_rating=lines[6].split(",")[-1].strip(),
                 release=int(lines[7].strip()),
                 resolution=(int(lines[8].split("x")[0]), int(lines[8].split("x")[1])),
                 tags=[t.strip() for t in lines[9].split(",")]

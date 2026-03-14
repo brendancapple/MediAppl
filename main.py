@@ -270,10 +270,10 @@ class MainWindow(QMainWindow):
         self.label_entryRelease.setWordWrap(True)
         self.label_entryResolution.setWordWrap(True)
         self.label_entryTags.setWordWrap(True)
-        self.label_entryName.clicked.connect(partial(self.search_selection, 0))
-        self.label_entryAuthor.clicked.connect(partial(self.search_selection, 1))
-        self.label_entrySeries.clicked.connect(partial(self.search_selection, 2))
-        self.label_entryLanguage.clicked.connect(partial(self.search_selection, 3))
+        self.label_entryName.clicked.connect(lambda: self.search_selection(0))
+        self.label_entryAuthor.clicked.connect(lambda: self.search_selection(1))
+        self.label_entrySeries.clicked.connect(lambda: self.search_selection(2))
+        self.label_entryLanguage.clicked.connect(lambda: self.search_selection(3))
         # self.label_entryTags.clicked.connect()
         button_entryOpen = QPushButton("Open")
         button_entryOpen.clicked.connect(self.open_entry)
@@ -608,7 +608,7 @@ class MainWindow(QMainWindow):
         if len(self.list_dbEntries.children()) > 0:
             print("Attempt clear")
             self.list_dbEntries.clear()
-            print("Entries cleared")
+            # print("Entries cleared")
         else:
             print("needn't clear entries")
 

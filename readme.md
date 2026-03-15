@@ -21,8 +21,6 @@ difficulty opening files in windows.
 ### Future Plans
 Currently, MediAppl can export to JSON or CSV, but not read from them.
 In the future, this will be remedied. 
-The list of entries is also unsorted as of now,
-so sorting for the entry list is planned for future updates.
 
 Furthermore, the search will be made more sophisticated in the future.
 It currently runs by checking substrings of every element,

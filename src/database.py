@@ -367,6 +367,42 @@ class Database:
         with open(filepath, "w", encoding="utf-8") as file:
             file.write(text)
 
+    @staticmethod
+    def create_database_from_json(filepath: str) -> str:
+        try:
+            with open(filepath, 'r') as file:
+                data = json.load(file)
+            print("File data =", data)
+
+            text = (
+                    data["name"] + "\n" +
+                    data["db_dir"] + "\n\n" +
+                    str(data["app_associations"]) + "\n" +
+                    str(data["entry_count"]) + "\n"
+            )
+
+            for entry in data["entries"]:
+                resolution = entry["resolution"].replace("(", "").replace(")", "").split(",")
+                text = (
+                        text + "\n---\n\n"
+                        + entry["path"] + "\n"
+                        + entry["cover"] + "\n"
+                        + entry["name"] + "\n"
+                        + entry["author"] + "\n"
+                        + entry["series"] + ", " + str(entry["vol"]) + "\n"
+                        + entry["language"] + ", " + entry["age_rating"] + "\n"
+                        + str(entry["release"]) + "\n"
+                        + resolution[0].strip() + "x" + resolution[1].strip() + "\n"
+                        + str(entry["tags"])[1:-1].replace("'", "") + "\n"
+                )
+
+            output_filepath = filepath[:-5] + "_json.appl"
+            with open(output_filepath, "w", encoding="utf-8") as file:
+                file.write(text)
+            return output_filepath
+        except:
+            return "unknown"
+
     def export_json(self, filepath: str):
         dictionary = {
             "file_dir": self.file_dir,

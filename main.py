@@ -84,6 +84,10 @@ class MainWindow(QMainWindow):
         button_export_csv.setStatusTip("Export current database as a CSV file")
         button_export_csv.triggered.connect(self.export_csv)
 
+        button_load_json = QAction("Load JSON", self)
+        button_load_json.setStatusTip("Load a JSON file as a database")
+        button_load_json.triggered.connect(self.load_json)
+
         button_import_metadata = QAction("Import Metadata", self)
         button_import_metadata.setStatusTip("Import Entry Metadata from another APPL Database")
         button_import_metadata.triggered.connect(self.import_metadata)
@@ -191,6 +195,8 @@ class MainWindow(QMainWindow):
         file_menu.addSeparator()
         file_menu.addAction(button_export_json)
         file_menu.addAction(button_export_csv)
+        file_menu.addSeparator()
+        file_menu.addAction(button_load_json)
         file_menu.addSeparator()
         file_menu.addAction(button_import_metadata)
         file_menu.addAction(button_clean)
@@ -373,6 +379,21 @@ class MainWindow(QMainWindow):
             filepath = dialog.selectedFiles()[0]
             print(filepath)
             self.database.export_json(filepath)
+
+    def load_json(self):
+        print("Import Database from JSON")
+        dialog = QFileDialog(self)
+        dialog.setFileMode(QFileDialog.FileMode.ExistingFiles)
+        dialog.setNameFilter("Databases (*.json)")
+        if dialog.exec_():
+            filepath = dialog.selectedFiles()[0]
+            filepath = db.Database.create_database_from_json(filepath)
+            if filepath == "unknown":
+                return
+            self.database = db.Database(filepath)
+            self.entry = self.database.entries[0]
+            print("pre update")
+            self.update_ui()
 
     def export_csv(self):
         print("Export CSV")

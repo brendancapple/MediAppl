@@ -84,6 +84,10 @@ class MainWindow(QMainWindow):
         button_export_csv.setStatusTip("Export current database as a CSV file")
         button_export_csv.triggered.connect(self.export_csv)
 
+        button_import_metadata = QAction("Import Metadata", self)
+        button_import_metadata.setStatusTip("Import Entry Metadata from another APPL Database")
+        button_import_metadata.triggered.connect(self.import_metadata)
+
         button_clean = QAction("Clean Database", self)
         button_clean.setStatusTip("Remove all files that don't exist on the disk")
         button_clean.setShortcut(QKeySequence("Ctrl+j"))
@@ -188,6 +192,7 @@ class MainWindow(QMainWindow):
         file_menu.addAction(button_export_json)
         file_menu.addAction(button_export_csv)
         file_menu.addSeparator()
+        file_menu.addAction(button_import_metadata)
         file_menu.addAction(button_clean)
         file_menu.addSeparator()
         file_menu.addAction(button_preferences)
@@ -385,6 +390,17 @@ class MainWindow(QMainWindow):
         loading_dialog = qt_util.LoadingDialog(self.database)
         loading_dialog.exec()
         self.update_ui()
+
+    def import_metadata(self):
+        print("Import Metadata from Database")
+        dialog = QFileDialog(self)
+        dialog.setFileMode(QFileDialog.FileMode.ExistingFiles)
+        dialog.setNameFilter("Databases (*.appl)")
+        if dialog.exec_():
+            filepath = dialog.selectedFiles()[0]
+            self.database.import_metadata_from_database(db.Database(filepath))
+            print("pre update")
+            self.update_ui()
 
     def search_entries(self):
         query = self.input_dbSearchbar.text().strip()

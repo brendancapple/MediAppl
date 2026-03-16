@@ -406,6 +406,47 @@ class Database:
         with open(filepath, 'w') as file:
             file.write(output)
 
+    def import_metadata_from_database(self, other):
+        for entry in other.entries:
+            if entry.path not in self.filepaths:
+                continue
+
+            print(entry.path)
+            target = self.filepaths.get(entry.path)
+            print(target.path)
+
+            if util.judge_better_result(target.path, target.name, entry.name) < 0:
+                print("  change name")
+                self.set_name(target, entry.name)
+            if util.judge_better_result(target.path, target.cover_path, entry.cover_path) < 0:
+                print("  change cover")
+                self.set_cover(target, entry.cover_path)
+            if util.judge_better_result(target.path, target.author, entry.author) < 0:
+                print("  change author")
+                self.set_author(target, entry.author)
+            if util.judge_better_result(target.path, target.series, entry.series) < 0:
+                print("  change series")
+                self.set_series(target, entry.series)
+            if util.judge_better_result(target.path, target.language, entry.language) < 0:
+                print("  change language")
+                self.set_language(target, entry.language)
+            if util.judge_better_result(target.path, target.age_rating, entry.age_rating) < 0:
+                print("  change rating")
+                self.set_rating(target, entry.age_rating)
+            if entry.vol != 0:
+                print("  change volume")
+                self.set_vol(target, entry.vol)
+            if entry.release != 0:
+                print("  change release")
+                self.set_release(target, entry.release)
+
+            for tag in entry.tags:
+                if tag not in target.tags:
+                    self.add_tag(target, tag)
+
+            if "unknown" in target.tags:
+                self.remove_tag(target, "unknown")
+
     # TODO: Import JSON (Just need to turn JSON into an APPL file and open it)
 
     def set_app_associations(self, extension: str, app: str):

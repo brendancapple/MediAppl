@@ -148,6 +148,38 @@ def hash_string(string: str) -> int:
     return total
 
 
+# Metadata Evaluation
+def judge_better_result(path: str, s1: str, s2: str) -> int:
+    path = path.lower()
+    s1 = s1.lower()
+    s2 = s2.lower()
+    p1, p2 = 0, 0
+
+    if s1 == "unknown" and s2.lower() == "unknown":
+        return 0
+    if s1 == "unknown":
+        return -1
+    if s2 == "unknown":
+        return 1
+
+    if " " in s1:
+        p1 += 1
+    if " " in s2:
+        p2 += 1
+
+    if s1 in path:
+        p1 -= 1
+    if s2 in path:
+        p2 -= 1
+
+    if len(s1) > len(s2):
+        p1 += 1
+    if len(s1) < len(s2):
+        p2 += 1
+
+    return p1 - p2  # Positive if p1 is greater, Negative if p2 is greater, Zero if equal
+
+
 # Metadata Grabbing
 def get_epub_metadata(epub_path: str):
     print("get_epub_metadata of " + epub_path)

@@ -149,6 +149,7 @@ class LoadingDialog(QDialog):
     def __init__(self, database: db.Database, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Loading")
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.setMinimumWidth(400)
         self.database = database
 
@@ -176,6 +177,7 @@ class ConfirmationDialog(QDialog):
         super().__init__()
 
         self.setWindowTitle("Confirmation Dialog")
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
 
         QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
 
@@ -196,6 +198,8 @@ class PreferencesDialog(QDialog):
         self.database = database
 
         self.setWindowTitle(self.database.name + " Preferences")
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+
         QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         self.buttonBox = QDialogButtonBox(QBtn)
         self.buttonBox.accepted.connect(self.apply)
@@ -237,6 +241,9 @@ class SortDialog(QDialog):
     def __init__(self, sorting: int, parent=None):
         super().__init__(parent)
         self.sorting = sorting
+
+        self.setWindowTitle("Sort")
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
 
         print(self.sorting)
         buttons_layout = QVBoxLayout()
@@ -362,6 +369,7 @@ class FilterDialog(QDialog):
         self.output = set()
 
         self.setWindowTitle("Filter")
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.setFixedWidth(720)
         self.setFixedHeight(460)
 
@@ -518,13 +526,15 @@ class EditDialog(QDialog):
         self.entry = entry
 
         self.setWindowTitle("Edit " + self.entry.name)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
 
         QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         self.buttonBox = QDialogButtonBox(QBtn)
         self.buttonBox.accepted.connect(self.apply)
         self.buttonBox.rejected.connect(self.reject)
 
-        message = QLabel("Edit Entry")
+        message = QLabel(entry.path)
+        message.setObjectName("header")
 
         label_name = QLabel("Name: ")
         self.input_name = QLineEdit(entry.name)

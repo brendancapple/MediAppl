@@ -484,7 +484,6 @@ class Database:
                 self.remove_tag(target, "unknown")
 
     def import_metadata_from_csv(self, csv: str):
-        rows = []
         with open(csv, "r") as file:
             contents = file.read()
             rows = contents.split("\n")

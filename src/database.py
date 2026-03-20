@@ -62,10 +62,10 @@ class Entry:
                 '   name: ' + self.name +
                 '   author: ' + self.author +
                 '   series: ' + self.series +
-                '   vol: ' + self.vol +
+                '   vol: ' + str(self.vol) +
                 '   language: ' + self.language +
                 '   age_rating: ' + self.age_rating +
-                '   release: ' + self.release +
+                '   release: ' + str(self.release) +
                 '   resolution: ' + str(self.resolution) +
                 '   tags: ' + str(self.tags)
                 )
@@ -424,16 +424,16 @@ class Database:
         for e in self.entries:
             row = str(self.db_dir + e.path +
                       ', ' + str(e.cover_path) +
-                      ', ' + str(e.name) +
-                      ', ' + str(e.author) +
-                      ', ' + str(e.series) +
-                      ', ' + str(e.vol) +
-                      ', ' + str(e.language) +
+                      ', "' + str(e.name).replace('"', '\\"') +
+                      '", "' + str(e.author).replace('"', '\\"') +
+                      '", "' + str(e.series).replace('"', '\\"') +
+                      '", ' + str(e.vol).replace('"', '\\"') +
+                      ', ' + str(e.language).replace('"', '\\"') +
                       ', ' + str(e.age_rating) +
                       ', ' + str(e.release) +
                       ', ' + str(e.resolution[0]) +
                       ', ' + str(e.resolution[1]) +
-                      ', ' + '"' + str(e.tags)[1:-1] + '"'
+                      ', "' + str(e.tags)[1:-1] + '"'
                       )
             rows.append(row)
         output = '\n'.join(rows)
@@ -480,7 +480,105 @@ class Database:
                 if tag not in target.tags:
                     self.add_tag(target, tag)
 
-            if "unknown" in target.tags:
+            if "unknown" in target.tags and len(target.tags) > 1:
+                self.remove_tag(target, "unknown")
+
+    def import_metadata_from_csv(self, csv: str):
+        rows = []
+        with open(csv, "r") as file:
+            contents = file.read()
+            rows = contents.split("\n")
+
+        print("pulled from file")
+
+        db_path = ""
+        for i in range(rows[0].index(",")):
+            same = True
+            for row in rows:
+                if row[i] != rows[0][i]:
+                    same = False
+            if not same:
+                break
+            db_path = db_path + rows[0][i]
+
+        print(db_path)
+
+        for row in rows:
+            cols = [c.strip() for c in row.split(",")]
+            metadata = []
+            combine = False
+            for col in cols:
+                print(col)
+                if combine:
+                    metadata[-1] = metadata[-1] + ", " + col
+                else:
+                    metadata.append(col)
+
+                if len(col) == 0:
+                    continue
+                if col[-1] == '"':
+                    combine = False
+                if col[0] == '"':
+                    combine = True
+                if col[-1] == '"' and len(col) > 1:
+                    if col[-1] == '\\':
+                        continue
+                    combine = False
+
+            print("columns split: ", metadata)
+            entry = Entry(
+                metadata[0][len(db_path):],
+                metadata[1],
+                metadata[2][1:-1],
+                metadata[3][1:-1],
+                metadata[4][1:-1],
+                int(metadata[5]),
+                metadata[6],
+                metadata[7],
+                int(metadata[8]),
+                (int(metadata[9]), int(metadata[10])),
+                [t.replace("'", "").replace('"', "").strip() for t in metadata[11][1:-1].split(",")]
+            )
+            print("entry: ", entry)
+
+            if entry.path not in self.filepaths:
+                continue
+
+            print(entry.path)
+            target = self.filepaths.get(entry.path)
+            print(target.path)
+
+            if util.judge_better_result(target.path, target.name, entry.name) < 0:
+                print("  change name")
+                self.set_name(target, entry.name)
+            if util.judge_better_result(target.path, target.cover_path, entry.cover_path) < 0:
+                print("  change cover")
+                self.set_cover(target, entry.cover_path)
+            if util.judge_better_result(target.path, target.author, entry.author) < 0:
+                print("  change author")
+                self.set_author(target, entry.author)
+            if util.judge_better_result(target.path, target.series, entry.series) < 0:
+                print("  change series")
+                self.set_series(target, entry.series)
+            if util.judge_better_result(target.path, target.language, entry.language) < 0:
+                print("  change language")
+                self.set_language(target, entry.language)
+            if util.judge_better_result(target.path, target.age_rating, entry.age_rating) < 0:
+                print("  change rating")
+                self.set_rating(target, entry.age_rating)
+            if entry.vol != 0:
+                print("  change volume")
+                self.set_vol(target, entry.vol)
+            if entry.release != 0:
+                print("  change release")
+                self.set_release(target, entry.release)
+
+            for tag in entry.tags:
+                print("  tag add : ", tag)
+                if tag not in target.tags:
+                    self.add_tag(target, tag)
+
+            if "unknown" in target.tags and len(target.tags) > 1:
                 self.remove_tag(target, "unknown")
 
     # TODO: Import JSON (Just need to turn JSON into an APPL file and open it)

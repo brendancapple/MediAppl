@@ -92,6 +92,10 @@ class MainWindow(QMainWindow):
         button_import_metadata.setStatusTip("Import Entry Metadata from another APPL Database")
         button_import_metadata.triggered.connect(self.import_metadata)
 
+        button_import_csv = QAction("Import CSV", self)
+        button_import_csv.setStatusTip("Import Entry Metadata from a CSV File")
+        button_import_csv.triggered.connect(self.import_csv)
+
         button_clean = QAction("Clean Database", self)
         button_clean.setStatusTip("Remove all files that don't exist on the disk")
         button_clean.setShortcut(QKeySequence("Ctrl+j"))
@@ -199,6 +203,7 @@ class MainWindow(QMainWindow):
         file_menu.addAction(button_load_json)
         file_menu.addSeparator()
         file_menu.addAction(button_import_metadata)
+        file_menu.addAction(button_import_csv)
         file_menu.addAction(button_clean)
         file_menu.addSeparator()
         file_menu.addAction(button_preferences)
@@ -423,6 +428,17 @@ class MainWindow(QMainWindow):
         if dialog.exec_():
             filepath = dialog.selectedFiles()[0]
             self.database.import_metadata_from_database(db.Database(filepath))
+            print("pre update")
+            self.update_ui()
+
+    def import_csv(self):
+        print("Import Metadata from CSV")
+        dialog = QFileDialog(self)
+        dialog.setFileMode(QFileDialog.FileMode.ExistingFiles)
+        dialog.setNameFilter("Comma-separated Values (*.csv)")
+        if dialog.exec_():
+            filepath = dialog.selectedFiles()[0]
+            self.database.import_metadata_from_csv(filepath)
             print("pre update")
             self.update_ui()
 

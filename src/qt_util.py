@@ -663,23 +663,25 @@ class EditDialog(QDialog):
         entry_res = (-1, -1)
         entry_tags = None
         entry_year = ""
+        entry_path = self.database.db_dir + self.entry.path
         print(ext)
         print(db.SUPPORTED_IMAGE_FORMATS)
         if ext == "epub":
-            entry_cover = util.cache_epub_cover(self.database.db_dir, db.CACHE_DIR, self.database.db_dir + self.entry.path)
-            entry_name, entry_author, entry_lang = util.get_epub_metadata(self.database.db_dir + self.entry.path)
+            entry_cover = util.cache_epub_cover(self.database.db_dir, db.CACHE_DIR, entry_path)
+            entry_name, entry_author, entry_lang = util.get_epub_metadata(entry_path)
             if "book" not in self.input_tags.text().lower():
                 entry_tags = "Book"
         elif ext in db.SUPPORTED_IMAGE_FORMATS:
-            entry_res = util.get_image_resolution(self.database.db_dir + self.entry.path)
+            entry_res = util.get_image_resolution(entry_path)
+            entry_cover = entry_path
             print(entry_res)
             if "image" not in self.input_tags.text().lower():
                 entry_tags = "Image"
         elif ext in db.SUPPORTED_VIDEO_FORMATS:
             print(self.database.db_dir+self.entry.path)
-            entry_cover = util.cache_video_cover(self.database.db_dir, db.CACHE_DIR, self.database.db_dir + self.entry.path)
-            entry_res = util.get_video_resolution(self.database.db_dir + self.entry.path)
-            entry_name, entry_author, entry_year, entry_tags = util.get_video_metadata(self.database.db_dir + self.entry.path)
+            entry_cover = util.cache_video_cover(self.database.db_dir, db.CACHE_DIR, entry_path)
+            entry_res = util.get_video_resolution(entry_path)
+            entry_name, entry_author, entry_year, entry_tags = util.get_video_metadata(entry_path)
             if "video" not in self.input_tags.text().lower():
                 if entry_tags is None or entry_tags.lower() in self.input_tags.text().lower():
                     entry_tags = "Video"
@@ -688,9 +690,9 @@ class EditDialog(QDialog):
         elif ext in db.SUPPORTED_AUDIO_FORMATS:
             print(self.database.db_dir+self.entry.path)
             entry_name, entry_author, entry_series, entry_vol, entry_year, entry_tags = (
-                util.get_audio_metadata(self.database.db_dir + self.entry.path)
+                util.get_audio_metadata(entry_path)
             )
-            entry_cover = util.cache_audio_cover(self.database.db_dir, db.CACHE_DIR, self.database.db_dir + self.entry.path)
+            entry_cover = util.cache_audio_cover(self.database.db_dir, db.CACHE_DIR, entry_path)
             if "audio" not in self.input_tags.text().lower():
                 if entry_tags is None or entry_tags.lower() in self.input_tags.text().lower():
                     entry_tags = "Audio"

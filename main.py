@@ -238,6 +238,7 @@ class MainWindow(QMainWindow):
 
         # Create UI
         self.label_dbName = QLabel("Unknown")
+        self.label_dbName.setObjectName("header")
         self.input_dbSearchbar = QLineEdit("")
         self.input_dbSearchbar.setPlaceholderText("Search")
         self.input_dbSearchbar.returnPressed.connect(self.search_entries)
@@ -284,6 +285,7 @@ class MainWindow(QMainWindow):
         self.label_entryAuthor.clicked.connect(lambda: self.search_selection(1))
         self.label_entrySeries.clicked.connect(lambda: self.search_selection(2))
         self.label_entryLanguage.clicked.connect(lambda: self.search_selection(3))
+        self.label_entryName.setObjectName("header")
         # self.label_entryTags.clicked.connect()
         button_entryOpen = QPushButton("Open")
         button_entryOpen.clicked.connect(self.open_entry)
@@ -308,6 +310,7 @@ class MainWindow(QMainWindow):
         self.vbox_entry.addWidget(self.label_entryRelease)
         self.vbox_entry.addWidget(self.label_entryResolution)
         self.vbox_entry.addWidget(self.label_entryTags)
+        self.vbox_entry.addStretch()
         self.vbox_entry.addWidget(widget_entry_buttons)
 
         hbox_main = QHBoxLayout()

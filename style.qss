@@ -38,6 +38,10 @@ QLabel {
     color: white;
 }
 
+QLabel#header {
+    font-weight: bold;
+}
+
 QMenuBar {
     background-color: #501616;
 }

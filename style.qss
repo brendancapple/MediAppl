@@ -43,6 +43,10 @@ QLabel#header {
     font-weight: bold;
 }
 
+QStatusBar {
+    color: white;
+}
+
 QMenuBar {
     background-color: #501616;
 }

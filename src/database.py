@@ -580,8 +580,6 @@ class Database:
             if "unknown" in target.tags and len(target.tags) > 1:
                 self.remove_tag(target, "unknown")
 
-    # TODO: Import JSON (Just need to turn JSON into an APPL file and open it)
-
     def set_app_associations(self, extension: str, app: str):
         self.app_associations[extension] = app
 

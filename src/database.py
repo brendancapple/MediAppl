@@ -330,7 +330,7 @@ class Database:
 
             print(entry_name, entry_lang, entry_author, entry_series, entry_vol, entry_lang, entry_year, entry_res,
                   entry_tags)
-            entry = Entry(file[len(self.db_dir):], entry_cover, entry_name,
+            entry = Entry(file[len(self.db_dir):], entry_cover, entry_name.replace("_", " "),
                           entry_author, entry_series, int(entry_vol), entry_lang, "NA", int(entry_year),
                           entry_res, entry_tags)
             print("created entry")

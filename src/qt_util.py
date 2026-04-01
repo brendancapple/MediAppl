@@ -709,7 +709,7 @@ class EditDialog(QDialog):
             self.input_author.setText(entry_author)
             print(self.input_author.text())
         if entry_name != "" and entry_name is not None:
-            self.input_name.setText(entry_name)
+            self.input_name.setText(entry_name.replace("_", " "))
             print(self.input_name.text())
         if entry_lang != "":
             self.input_language.setText(entry_lang)

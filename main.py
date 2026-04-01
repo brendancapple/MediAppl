@@ -264,10 +264,10 @@ class MainWindow(QMainWindow):
         self.vbox_db.addWidget(self.list_dbEntries)
 
         image_entryCover = QPixmap('res/placeholder.png').scaled(int(self.screen.size().width()*0.25),
-                                                                 int(self.screen.size().height()*0.25), Qt.KeepAspectRatio)
+                                                                 int(self.screen.size().height()*0.25),
+                                                                 Qt.KeepAspectRatio)
         self.label_entryCover = QLabel()
         self.label_entryCover.setPixmap(image_entryCover)
-        # self.label_entryCover.setScaledContents(True)
         self.label_entryCover.resize(500, 500)
 
         self.label_entryName = qt_util.ClickLabel("Name Unknown")
@@ -292,6 +292,7 @@ class MainWindow(QMainWindow):
         self.label_entryLanguage.clicked.connect(lambda: self.search_selection(3))
         # self.label_entryTags.clicked.connect()
         self.label_entryName.setObjectName("header")
+
         button_entryOpen = QPushButton("Open")
         button_entryOpen.clicked.connect(self.open_entry)
         button_entryEdit = QPushButton("Edit")
@@ -307,14 +308,20 @@ class MainWindow(QMainWindow):
 
         self.vbox_entry = QVBoxLayout()
         self.vbox_entry.addWidget(self.label_entryCover)
-        self.vbox_entry.addWidget(self.label_entryName)
-        self.vbox_entry.addWidget(self.label_entryFilepath)
-        self.vbox_entry.addWidget(self.label_entryAuthor)
-        self.vbox_entry.addWidget(self.label_entrySeries)
-        self.vbox_entry.addWidget(self.label_entryLanguage)
-        self.vbox_entry.addWidget(self.label_entryRelease)
-        self.vbox_entry.addWidget(self.label_entryResolution)
-        self.vbox_entry.addWidget(self.label_entryTags)
+
+        entry_metadata = QWidget()
+        entry_metadata_layout = QVBoxLayout()
+        entry_metadata_layout.addWidget(self.label_entryName)
+        entry_metadata_layout.addWidget(self.label_entryFilepath)
+        entry_metadata_layout.addWidget(self.label_entryAuthor)
+        entry_metadata_layout.addWidget(self.label_entrySeries)
+        entry_metadata_layout.addWidget(self.label_entryLanguage)
+        entry_metadata_layout.addWidget(self.label_entryRelease)
+        entry_metadata_layout.addWidget(self.label_entryResolution)
+        entry_metadata_layout.addWidget(self.label_entryTags)
+        entry_metadata.setLayout(entry_metadata_layout)
+
+        self.vbox_entry.addWidget(entry_metadata)
         self.vbox_entry.addStretch()
         self.vbox_entry.addWidget(widget_entry_buttons)
 

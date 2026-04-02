@@ -605,6 +605,8 @@ class Database:
         entry.resolution = (x, y)
 
     def add_tag(self, entry: Entry, tag: str):
+        if tag in entry.tags:
+            return
         util.dictionary_list_add(self.tags, tag.lower(), entry)
         entry.tags.append(tag)
 

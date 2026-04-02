@@ -649,88 +649,25 @@ class EditDialog(QDialog):
             filepath = dialog.selectedFiles()[0]
             self.input_cover.setText(filepath)
 
+    def set_fields(self, entry: db.Entry):
+        self.input_cover.setText(entry.cover_path)
+        self.input_author.setText(entry.author)
+        self.input_name.setText(entry.name)
+        self.input_language.setText(entry.language)
+        self.input_release.setText(str(entry.release))
+        self.input_series.setText(entry.series)
+        self.input_vol.setText(str(entry.vol))
+        self.input_tags.setText(str(entry.tags)[1:-1].replace("'", "") + ", " + self.input_tags.text())
+        self.input_res1.setText(str(entry.resolution[0]))
+        self.input_res2.setText(str(entry.resolution[1]))
+
     def generate_metadata(self):
         print("Generate Metadata")
         if "." not in self.entry.path:
             return
-        ext = self.entry.path[self.entry.path.rfind(".")+1:].lower()
-        entry_cover = ""
-        entry_name = ""
-        entry_author = ""
-        entry_lang = ""
-        entry_series = ""
-        entry_vol = ""
-        entry_res = (-1, -1)
-        entry_tags = None
-        entry_year = ""
-        entry_path = self.database.db_dir + self.entry.path
-        print(ext)
-        print(db.SUPPORTED_IMAGE_FORMATS)
-        if ext == "epub":
-            entry_cover = util.cache_epub_cover(self.database.db_dir, db.CACHE_DIR, entry_path)
-            entry_name, entry_author, entry_lang = util.get_epub_metadata(entry_path)
-            if "book" not in self.input_tags.text().lower():
-                entry_tags = "Book"
-        elif ext in db.SUPPORTED_IMAGE_FORMATS:
-            entry_res = util.get_image_resolution(entry_path)
-            entry_cover = entry_path
-            print(entry_res)
-            if "image" not in self.input_tags.text().lower():
-                entry_tags = "Image"
-        elif ext in db.SUPPORTED_VIDEO_FORMATS:
-            print(self.database.db_dir+self.entry.path)
-            entry_cover = util.cache_video_cover(self.database.db_dir, db.CACHE_DIR, entry_path)
-            entry_res = util.get_video_resolution(entry_path)
-            entry_name, entry_author, entry_year, entry_tags = util.get_video_metadata(entry_path)
-            if "video" not in self.input_tags.text().lower():
-                if entry_tags is None or entry_tags.lower() in self.input_tags.text().lower():
-                    entry_tags = "Video"
-                else:
-                    entry_tags = "Video, " + entry_tags
-        elif ext in db.SUPPORTED_AUDIO_FORMATS:
-            print(self.database.db_dir+self.entry.path)
-            entry_name, entry_author, entry_series, entry_vol, entry_year, entry_tags = (
-                util.get_audio_metadata(entry_path)
-            )
-            entry_cover = util.cache_audio_cover(self.database.db_dir, db.CACHE_DIR, entry_path)
-            if "audio" not in self.input_tags.text().lower():
-                if entry_tags is None or entry_tags.lower() in self.input_tags.text().lower():
-                    entry_tags = "Audio"
-                else:
-                    entry_tags = "Audio, " + entry_tags
-        elif ext in db.SUPPORTED_TEXT_FORMATS:
-            if "text" not in self.input_tags.text().lower():
-                entry_tags = "Text"
-
-        if entry_cover != "":
-            self.input_cover.setText(entry_cover)
-            print(self.input_cover.text())
-        if entry_author != "" and entry_author is not None:
-            self.input_author.setText(entry_author)
-            print(self.input_author.text())
-        if entry_name != "" and entry_name is not None:
-            self.input_name.setText(entry_name.replace("_", " "))
-            print(self.input_name.text())
-        if entry_lang != "":
-            self.input_language.setText(entry_lang)
-            print(self.input_language.text())
-        if entry_year != "" and entry_year is not None:
-            self.input_release.setText(entry_year)
-            print(self.input_release.text())
-        if entry_series != "" and entry_series is not None:
-            self.input_series.setText(entry_series)
-            print(self.input_series.text())
-        if entry_vol != "" and entry_vol is not None:
-            self.input_vol.setText(entry_vol)
-            print(self.input_vol.text())
-        if entry_tags != "" and entry_tags is not None:
-            self.input_tags.setText(entry_tags + ", " + self.input_tags.text())
-            print(self.input_tags.text())
-        if entry_res[0] >= 0:
-            self.input_res1.setText(str(entry_res[0]))
-            self.input_res2.setText(str(entry_res[1]))
-            print(self.input_res1.text())
-            print(self.input_res2.text())
+        generated_entry = db.Entry.from_file(self.database, self.database.db_dir + "/" + self.entry.path)
+        self.database.merge_metadata(self.entry, generated_entry, True)
+        self.set_fields(self.entry)
 
     def apply(self):
         self.database.set_name(self.entry, self.input_name.text())

@@ -72,6 +72,10 @@ class Entry:
 
     @staticmethod
     def from_file(db, file: str):
+        print(db.db_dir)
+        print(CACHE_DIR)
+        print(file)
+
         entry_name = file[file.rfind("/") + 1:file.rfind(".")]
         entry_ext = file[file.rfind(".") + 1:]
         entry_cover = "unknown"
@@ -373,11 +377,12 @@ class Database:
         with open(filepath, "w", encoding="utf-8") as file:
             file.write(text)
 
-    def merge_metadata(self, target: Entry, source: Entry):
+    def merge_metadata(self, target: Entry, source: Entry, force_cover: bool = False):
+        print("merge metadata of " + str(target) + " and " + str(source))
         if util.judge_better_result(target.path, target.name, source.name) < 0:
             print("  change name")
             self.set_name(target, source.name)
-        if util.judge_better_result(target.path, target.cover_path, source.cover_path) < 0:
+        if force_cover or util.judge_better_result(target.path, target.cover_path, source.cover_path) < 0:
             print("  change cover")
             self.set_cover(target, source.cover_path)
         if util.judge_better_result(target.path, target.author, source.author) < 0:
@@ -404,6 +409,7 @@ class Database:
                 self.add_tag(target, tag)
         if "unknown" in target.tags and len(target.tags) > 1:
             self.remove_tag(target, "unknown")
+        print("metadata merged")
 
     @staticmethod
     def create_database_from_json(filepath: str) -> str:

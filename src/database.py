@@ -489,37 +489,8 @@ class Database:
             target = self.filepaths.get(entry.path)
             print(target.path)
 
-            if util.judge_better_result(target.path, target.name, entry.name) < 0:
-                print("  change name")
-                self.set_name(target, entry.name)
-            if util.judge_better_result(target.path, target.cover_path, entry.cover_path) < 0:
-                print("  change cover")
-                self.set_cover(target, entry.cover_path)
-            if util.judge_better_result(target.path, target.author, entry.author) < 0:
-                print("  change author")
-                self.set_author(target, entry.author)
-            if util.judge_better_result(target.path, target.series, entry.series) < 0:
-                print("  change series")
-                self.set_series(target, entry.series)
-            if util.judge_better_result(target.path, target.language, entry.language) < 0:
-                print("  change language")
-                self.set_language(target, entry.language)
-            if util.judge_better_result(target.path, target.age_rating, entry.age_rating) < 0:
-                print("  change rating")
-                self.set_rating(target, entry.age_rating)
-            if entry.vol != 0:
-                print("  change volume")
-                self.set_vol(target, entry.vol)
-            if entry.release != 0:
-                print("  change release")
-                self.set_release(target, entry.release)
-
-            for tag in entry.tags:
-                if tag not in target.tags:
-                    self.add_tag(target, tag)
-
-            if "unknown" in target.tags and len(target.tags) > 1:
-                self.remove_tag(target, "unknown")
+            self.merge_metadata(target, entry)
+            print("merged metadata")
 
     def import_metadata_from_csv(self, csv: str):
         with open(csv, "r") as file:
@@ -585,38 +556,8 @@ class Database:
             target = self.filepaths.get(entry.path)
             print(target.path)
 
-            if util.judge_better_result(target.path, target.name, entry.name) < 0:
-                print("  change name")
-                self.set_name(target, entry.name)
-            if util.judge_better_result(target.path, target.cover_path, entry.cover_path) < 0:
-                print("  change cover")
-                self.set_cover(target, entry.cover_path)
-            if util.judge_better_result(target.path, target.author, entry.author) < 0:
-                print("  change author")
-                self.set_author(target, entry.author)
-            if util.judge_better_result(target.path, target.series, entry.series) < 0:
-                print("  change series")
-                self.set_series(target, entry.series)
-            if util.judge_better_result(target.path, target.language, entry.language) < 0:
-                print("  change language")
-                self.set_language(target, entry.language)
-            if util.judge_better_result(target.path, target.age_rating, entry.age_rating) < 0:
-                print("  change rating")
-                self.set_rating(target, entry.age_rating)
-            if entry.vol != 0:
-                print("  change volume")
-                self.set_vol(target, entry.vol)
-            if entry.release != 0:
-                print("  change release")
-                self.set_release(target, entry.release)
-
-            for tag in entry.tags:
-                print("  tag add : ", tag)
-                if tag not in target.tags:
-                    self.add_tag(target, tag)
-
-            if "unknown" in target.tags and len(target.tags) > 1:
-                self.remove_tag(target, "unknown")
+            self.merge_metadata(target, entry)
+            print("merged metadata")
 
     def set_app_associations(self, extension: str, app: str):
         self.app_associations[extension] = app

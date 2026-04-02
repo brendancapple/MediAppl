@@ -151,8 +151,8 @@ def hash_string(string: str) -> int:
 # Metadata Evaluation
 def judge_better_result(path: str, s1: str, s2: str) -> int:
     path = path.lower()
-    s1 = s1.lower()
-    s2 = s2.lower()
+    s1 = s1.lower().strip()
+    s2 = s2.lower().strip()
     p1, p2 = 0, 0
 
     if s1 == "unknown" and s2.lower() == "unknown":
@@ -200,8 +200,15 @@ def get_epub_metadata(epub_path: str):
 
 
 def cache_epub_cover(db_dir: str, cache: str, epub_path: str) -> str:
+    epub_name = epub_path[epub_path.rfind("/")+1:epub_path.rfind(".")]
+    image_path = db_dir + cache + "/" + epub_name + ".jpg"
+    if os.path.exists(image_path):
+        print(epub_path + " exists")
+        return image_path
+
     print("cache_epub_cover of " + epub_path)
     book = epub.read_epub(epub_path)
+    print("book read")
     try:
         cover_data = book.get_item_with_id('cover-image').get_content()
     except:
@@ -212,17 +219,21 @@ def cache_epub_cover(db_dir: str, cache: str, epub_path: str) -> str:
 
     if not os.path.exists(db_dir + cache):
         os.mkdir(db_dir + cache)
-    epub_name = epub_path[epub_path.rfind("/")+1:epub_path.rfind(".")]
-    image_path = db_dir + cache + "/" + epub_name + ".jpg"
     print("Cached Image Path " + image_path)
     image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     cv2.imwrite(image_path, image)
+    print("Written Image Path " + image_path)
     return image_path
 
 
 def cache_video_cover(db_dir: str, cache: str, vid_path: str) -> str:
-    print("cache_video_cover of " + vid_path)
+    vid_name = vid_path[vid_path.rfind("/")+1:vid_path.rfind(".")]
+    image_path = db_dir + cache + "/" + vid_name + ".jpg"
+    if os.path.exists(image_path):
+        print(vid_path + " exists")
+        return image_path
 
+    print("cache_video_cover of " + vid_path)
     try:
         video = cv2.VideoCapture(vid_path)
     except:
@@ -243,16 +254,21 @@ def cache_video_cover(db_dir: str, cache: str, vid_path: str) -> str:
 
     if not os.path.exists(db_dir + cache):
         os.mkdir(db_dir + cache)
-    epub_name = vid_path[vid_path.rfind("/")+1:vid_path.rfind(".")]
-    image_path = db_dir + cache + "/" + epub_name + ".jpg"
     print("Cached Image Path " + image_path)
     cv2.imwrite(image_path, frame)
+    print("Path written " + image_path)
     video.release()
     del video
     return image_path
 
 
 def cache_audio_cover(db_dir: str, cache: str, audio_path) -> str:
+    audio_name = audio_path[audio_path.rfind("/")+1:audio_path.rfind(".")]
+    image_path = db_dir + cache + "/" + audio_name + ".jpg"
+    if os.path.exists(image_path):
+        print(audio_path + " exists")
+        return image_path
+
     print("cache_audio_cover of " + audio_path)
     try:
         audio = TinyTag.get(audio_path, image=True)
@@ -271,8 +287,6 @@ def cache_audio_cover(db_dir: str, cache: str, audio_path) -> str:
 
     if not os.path.exists(db_dir + cache):
         os.mkdir(db_dir + cache)
-    audio_name = audio_path[audio_path.rfind("/")+1:audio_path.rfind(".")]
-    image_path = db_dir + cache + "/" + audio_name + ".jpg"
     print("Cached Image Path " + image_path)
     image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     cv2.imwrite(image_path, image)

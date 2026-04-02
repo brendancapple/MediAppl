@@ -99,6 +99,7 @@ class Entry:
         elif entry_ext.lower() in SUPPORTED_IMAGE_FORMATS:
             entry_cover = file
             entry_res = util.get_image_resolution(file)
+            entry_year = util.get_image_release(file)
             entry_tags = ['Image']
         elif entry_ext in SUPPORTED_AUDIO_FORMATS:
             entry_name, entry_author, entry_series, entry_vol, entry_year, entry_genre = util.get_audio_metadata(

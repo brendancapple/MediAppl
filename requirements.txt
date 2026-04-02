@@ -4,3 +4,4 @@ ebooklib
 opencv-python
 pyinstaller
 tinytag
+exif

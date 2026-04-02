@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 from ebooklib import epub
 from tinytag import TinyTag
+from exif import Image as Exif
 from enum import Enum
 
 LANGUAGE_CODES = {
@@ -344,3 +345,19 @@ def get_image_resolution(img_path):
         print("get img res failed: " + str(res))
         return res
     return res
+
+
+def get_image_release(img_path) -> int:
+    print("get img release")
+    try:
+        with open(img_path, 'rb') as binary:
+            img: Exif = Exif(binary)
+    except:
+        return 0
+    if not img.has_exif:
+        return 0
+
+    print("opened")
+    print(img.datetime)
+    return int(img.datetime[:4])
+

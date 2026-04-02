@@ -19,8 +19,8 @@ Early versions of this tool will have feature limitations, such as
 difficulty opening files in windows. 
 
 ### Future Plans
-Currently, MediAppl can export to JSON or CSV, but not read from them.
-In the future, this will be remedied. 
+MediAppl can export to and read from JSON or CSV. 
+More file formats, including compressed formats are planned.
 
 Furthermore, the search will be made more sophisticated in the future.
 It currently runs by checking substrings of every element,

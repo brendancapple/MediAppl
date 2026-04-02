@@ -373,6 +373,38 @@ class Database:
         with open(filepath, "w", encoding="utf-8") as file:
             file.write(text)
 
+    def merge_metadata(self, target: Entry, source: Entry):
+        if util.judge_better_result(target.path, target.name, source.name) < 0:
+            print("  change name")
+            self.set_name(target, source.name)
+        if util.judge_better_result(target.path, target.cover_path, source.cover_path) < 0:
+            print("  change cover")
+            self.set_cover(target, source.cover_path)
+        if util.judge_better_result(target.path, target.author, source.author) < 0:
+            print("  change author")
+            self.set_author(target, source.author)
+        if util.judge_better_result(target.path, target.series, source.series) < 0:
+            print("  change series")
+            self.set_series(target, source.series)
+        if util.judge_better_result(target.path, target.language, source.language) < 0:
+            print("  change language")
+            self.set_language(target, source.language)
+        if util.judge_better_result(target.path, target.age_rating, source.age_rating) < 0:
+            print("  change rating")
+            self.set_rating(target, source.age_rating)
+        if source.vol != 0:
+            print("  change volume")
+            self.set_vol(target, source.vol)
+        if source.release != 0:
+            print("  change release")
+            self.set_release(target, source.release)
+
+        for tag in source.tags:
+            if tag not in target.tags:
+                self.add_tag(target, tag)
+        if "unknown" in target.tags and len(target.tags) > 1:
+            self.remove_tag(target, "unknown")
+
     @staticmethod
     def create_database_from_json(filepath: str) -> str:
         try:

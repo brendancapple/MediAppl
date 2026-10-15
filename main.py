@@ -277,6 +277,7 @@ class MainWindow(QMainWindow):
         self.label_entryLanguage = qt_util.ClickLabel("Language: Unknown [Unrated]")
         self.label_entryRelease = qt_util.ClickLabel("Release: Unknown")
         self.label_entryResolution = qt_util.ClickLabel("Resolution: 0x0")
+        self.label_entrySize = qt_util.ClickLabel("Size: Unknown")
         self.label_entryTags = qt_util.ClickLabel("[]")
         self.label_entryName.setWordWrap(True)
         self.label_entryFilepath.setWordWrap(True)
@@ -318,6 +319,7 @@ class MainWindow(QMainWindow):
         entry_metadata_layout.addWidget(self.label_entryLanguage)
         entry_metadata_layout.addWidget(self.label_entryRelease)
         entry_metadata_layout.addWidget(self.label_entryResolution)
+        entry_metadata_layout.addWidget(self.label_entrySize)
         entry_metadata_layout.addWidget(self.label_entryTags)
         entry_metadata.setLayout(entry_metadata_layout)
 
@@ -604,14 +606,14 @@ class MainWindow(QMainWindow):
     def update_icons(self, lower_bound: int, upper_bound: int):
         # print("Recieved Bounds: " + str(lower_bound) + " : " + str(upper_bound))
         for i in range(lower_bound, upper_bound):
-            path = self.entries[i].cover_path
+            path = self.database.db_dir + self.entries[i].cover_path
             item = self.list_dbEntries.item(i)
             if item is None:
                 continue
-            if not os.path.exists(path):
+            if not os.path.exists(path) and not os.path.exists(self.entries[i].cover_path):
                 item.setIcon(qt_util.EntryListing.DEFAULT_COVER)
-            else:
-                item.setIcon(self.entries[i].get_cover_icon(int(self.screen.size().width()/6), int(self.screen.size().height())))
+                continue
+            item.setIcon(self.entries[i].get_cover_icon(self.database, int(self.screen.size().width()/6), int(self.screen.size().height())))
 
     def update_ui(self):
         print("Update UI")
@@ -630,9 +632,8 @@ class MainWindow(QMainWindow):
             return
         index = self.list_dbEntries.currentIndex().row()
         self.entry = self.entries[index]
-        success = self.update_entry_vbox()
+        self.update_entry_vbox()
         self.check_lazy_load()
-        print("entry Updated ", success)
 
     def update_entry_vbox(self):
         entry = self.entry
@@ -645,11 +646,36 @@ class MainWindow(QMainWindow):
         self.label_entryResolution.setText("Resolution: " + str(entry.resolution[0]) + "x" + str(entry.resolution[1]))
         self.label_entryTags.setText("Tags: " + str(entry.tags))
 
+        try:
+            entry_size = os.path.getsize(self.database.db_dir + entry.path)
+            entry_size_order = "B"
+
+            if entry_size > 999_999_999:
+                entry_size_order = "GB"
+                entry_size //= 10_000_000
+                entry_size /= 100
+            elif entry_size > 99_999:
+                entry_size_order = "MB"
+                entry_size //= 10_000
+                entry_size /= 100
+            elif entry_size > 999:
+                entry_size_order = "KB"
+                entry_size //= 10
+                entry_size /= 100
+
+            self.label_entrySize.setText("Size: " + str(entry_size) + " " + entry_size_order)
+        except:
+            print("SIZE FAILURE: " + self.database.db_dir + entry.path)
+
         self.label_entryCover.setScaledContents(False)
 
         image: QPixmap
-        exists = os.path.isfile(entry.cover_path)
-        if exists:
+        cover_path = self.database.db_dir + entry.cover_path
+        if os.path.isfile(cover_path):
+            image = QPixmap(cover_path)
+            image = image.scaled(max(int(self.label_entryCover.width()), int(self.width() * 0.3)),
+                                 int(self.height() * 0.5), Qt.KeepAspectRatio)
+        elif os.path.isfile(entry.cover_path):
             image = QPixmap(entry.cover_path)
             image = image.scaled(max(int(self.label_entryCover.width()), int(self.width() * 0.3)),
                                  int(self.height() * 0.5), Qt.KeepAspectRatio)
@@ -658,7 +684,6 @@ class MainWindow(QMainWindow):
             image = image.scaled(int(self.label_entryCover.width()), int(self.height() * 0.5), Qt.KeepAspectRatio)
         self.label_entryCover.setPixmap(image)
         # print("Unknown Cover")
-        return exists
 
     def update_entries_scroll(self):
         if self.entries is None:

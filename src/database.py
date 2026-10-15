@@ -89,22 +89,22 @@ class Entry:
 
         if entry_ext.lower() in SUPPORTED_VIDEO_FORMATS:
             entry_name, entry_author, entry_year, entry_genre = util.get_video_metadata(file)
-            entry_cover = util.cache_video_cover(db.db_dir, CACHE_DIR, file)
+            entry_cover = util.cache_video_cover(db.db_dir, CACHE_DIR, file)[len(db.db_dir):]
             entry_res = util.get_video_resolution(file)
             entry_tags = ['Video', entry_genre] if entry_genre is not None else ['Video']
         elif entry_ext.lower() == "epub":
-            entry_cover = util.cache_epub_cover(db.db_dir, CACHE_DIR, file)
+            entry_cover = util.cache_epub_cover(db.db_dir, CACHE_DIR, file)[len(db.db_dir):]
             entry_name, entry_author, entry_lang = util.get_epub_metadata(file)
             entry_tags = ['Book']
         elif entry_ext.lower() in SUPPORTED_IMAGE_FORMATS:
-            entry_cover = file
+            entry_cover = file[len(db.db_dir):]
             entry_res = util.get_image_resolution(file)
             entry_year = util.get_image_release(file)
             entry_tags = ['Image']
         elif entry_ext in SUPPORTED_AUDIO_FORMATS:
             entry_name, entry_author, entry_series, entry_vol, entry_year, entry_genre = util.get_audio_metadata(
                 file)
-            entry_cover = util.cache_audio_cover(db.db_dir, CACHE_DIR, file)
+            entry_cover = util.cache_audio_cover(db.db_dir, CACHE_DIR, file)[len(db.db_dir):]
             entry_tags = ['Audio', entry_genre] if entry_genre is not None else ['Audio']
         elif entry_ext.lower() in SUPPORTED_TEXT_FORMATS:
             entry_tags = ['Text']
@@ -145,9 +145,14 @@ class Entry:
         return Entry(file[len(db.db_dir):], entry_cover, entry_name, entry_author, entry_series, int(entry_vol),
                      entry_lang, "NA", int(entry_year), entry_res, entry_tags)
 
-    def get_cover_icon(self, width, height):
+    def get_cover_icon(self, db, width, height):
         if self.cover_cache is None:
-            small_pixmap = QPixmap(self.cover_path).scaled(width, height, Qt.KeepAspectRatio, Qt.FastTransformation)
+            small_pixmap: QPixmap
+            if not os.path.exists(db.db_dir + self.cover_path):
+                small_pixmap = QPixmap(self.cover_path).scaled(width, height, Qt.KeepAspectRatio, Qt.FastTransformation)
+            else:
+                small_pixmap = QPixmap(db.db_dir + self.cover_path).scaled(width, height, Qt.KeepAspectRatio, Qt.FastTransformation)
+
             self.cover_cache = QIcon(small_pixmap)
         return self.cover_cache
 

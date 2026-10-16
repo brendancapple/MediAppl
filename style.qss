@@ -6,6 +6,10 @@ OpenWindow {
     border-image: url(res/BG_Media.png) 0 0 0 0 stretch stretch;
 }
 
+QFileDialog {
+    background-color: rgb(16, 13, 13);
+}
+
 EditDialog {
     border-image: url(res/BG_Edit.png) 0 0 0 0 stretch stretch;
 }

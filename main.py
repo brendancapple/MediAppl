@@ -27,7 +27,7 @@ import src.qt_util as qt_util
 import src.util as util
 
 ENTRY_LISTING_HEIGHT = 60
-DEFAULT_APP_ASSOCIATIONS = {"mp3": "vlc", "txt": "vim"}
+DEFAULT_APP_ASSOCIATIONS = {"mp3": "vlc", "mp4": "vlc", "mkv": "vlc", "mov": "vlc"}
 
 STYLESHEET = "style.qss"
 

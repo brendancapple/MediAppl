@@ -348,6 +348,11 @@ class Database:
                 print("skip file -- known" + file)
                 continue
 
+            number_name = file[file.rfind("/") + 1:file.rfind(".")].strip().replace("_", "").replace(".", "")
+            if number_name.isdigit() and int(number_name) != 1:
+                print("skip file -- part of serial folder" + file)
+                continue
+
             entry = Entry.from_file(self, file)
             print("created entry")
 

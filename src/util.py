@@ -332,32 +332,34 @@ def get_audio_metadata(filepath):
 
 
 def get_image_resolution(img_path):
-    print("get img res")
+    # print("get img res")
     res = (0, 0)
     try:
         image = cv2.imread(img_path)
-        print("read")
+        # print("read")
         shape = image.shape
-        print("unwrap")
+        # print("unwrap")
         res = (int(shape[1]), int(shape[0]))
     except:
-        print(img_path)
-        print("get img res failed: " + str(res))
+        # print(img_path)
+        # print("get img res failed: " + str(res))
         return res
     return res
 
 
 def get_image_release(img_path) -> int:
-    print("get img release")
+    # print("get img release")
+    dt = None
     try:
         with open(img_path, 'rb') as binary:
             img: Exif = Exif(binary)
+        dt = img.datetime
     except:
         return 0
     if not img.has_exif:
         return 0
 
-    print("opened")
-    print(img.datetime)
-    return int(img.datetime[:4])
+    # print("opened")
+    print(dt)
+    return int(dt[:4])
 

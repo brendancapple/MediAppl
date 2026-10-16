@@ -1,7 +1,7 @@
 PyQt5
 numpy
 ebooklib
-opencv-python
+opencv-python-headless
 pyinstaller
 tinytag
 exif

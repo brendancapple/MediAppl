@@ -1,7 +1,9 @@
 from PyQt5.QtCore import QPoint, QRect, QSize, Qt, pyqtSignal
+from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import (
     QLayout, QPushButton, QSizePolicy, QWidget, QLabel, QTextEdit, QVBoxLayout, QDialog,
-    QDialogButtonBox, QScrollArea, QTabWidget, QLineEdit, QHBoxLayout, QFileDialog, QListWidgetItem, QProgressBar)
+    QDialogButtonBox, QScrollArea, QTabWidget, QLineEdit, QHBoxLayout, QFileDialog, QListWidgetItem, QProgressBar,
+    QStackedLayout, QGridLayout)
 from functools import partial
 from enum import Enum
 
@@ -681,3 +683,86 @@ class EditDialog(QDialog):
         self.entry.resolution = (int(self.input_res1.text()), int(self.input_res2.text()))
         self.database.set_tags(self.entry, self.input_tags.text())
         self.accept()
+
+
+class OpenWindow(QDialog):
+    def __init__(self, entry: db.Entry):
+        super().__init__()
+        self.entry = entry
+        self.setWindowTitle(entry.name)
+        self.setWindowIcon(QIcon('res/Icon.png'))
+        self.setWindowFlags(Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)
+        self.setMinimumSize(QSize(480, 480))
+
+
+class OpenTextWindow(OpenWindow):
+    def __init__(self, database: db.Database, entry: db.Entry):
+        super().__init__(entry)
+
+        content: str
+        with open(database.db_dir + self.entry.path, "r") as file:
+            content = file.read()
+
+        text = QLabel(content)
+        text.setWordWrap(True)
+
+        wrapper_layout = QVBoxLayout()
+        wrapper_layout.addWidget(text)
+
+        text_wrapper = QWidget()
+        text_wrapper.setLayout(wrapper_layout)
+
+        scroll = QScrollArea()
+        scroll.setWidget(text_wrapper)
+        scroll.setWidgetResizable(True)
+
+        layout = QVBoxLayout()
+        layout.addWidget(scroll)
+
+        self.setLayout(layout)
+
+
+class OpenImageWindow(OpenWindow):
+    def __init__(self, database: db.Database, entry: db.Entry):
+        super().__init__(entry)
+
+        self.pixmap = QPixmap()
+        self.image = QLabel()
+
+        self.update_image(database.db_dir + self.entry.cover_path)
+
+        label_filepath = QLabel(database.db_dir + self.entry.cover_path)
+        label_filepath.setAlignment(Qt.AlignBottom)
+
+        overlay = QVBoxLayout()
+        overlay.addWidget(label_filepath)
+
+        overlay_widget = QWidget()
+        overlay_widget.setLayout(overlay)
+
+        layout = QGridLayout()
+        layout.addWidget(self.image, 0, 0)
+        layout.addWidget(overlay_widget, 0, 0)
+
+        self.setLayout(layout)
+
+    def resizeEvent(self, event):
+        if self.pixmap is None:
+            return
+
+        size = [event.size().width(), event.size().height()]
+        self.image.setPixmap(self.pixmap.scaled(
+            size[0],
+            size[1],
+            Qt.KeepAspectRatio
+        ))
+
+    def update_image(self, path: str):
+        self.pixmap = QPixmap(path)
+        self.image.setAlignment(Qt.AlignCenter)
+        self.image.setPixmap(self.pixmap.scaled(
+            self.image.width(),
+            self.image.height(),
+            Qt.KeepAspectRatio
+        ))
+        self.image.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)

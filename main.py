@@ -29,6 +29,8 @@ import src.util as util
 ENTRY_LISTING_HEIGHT = 60
 DEFAULT_APP_ASSOCIATIONS = {"mp3": "vlc", "txt": "vim"}
 
+STYLESHEET = "style.qss"
+
 
 class MainWindow(QMainWindow):
     def __init__(self, app: QApplication):
@@ -37,6 +39,7 @@ class MainWindow(QMainWindow):
         self.database: db.Database = db.Database("default.appl")
         self.entries = []
         self.entry: db.Entry = self.database.entries[0]
+        self.open_window = None
 
         self.sorting = int(util.SortingElements.PATH.value)
         self.view: qt_util.EntryView = qt_util.EntryView.COMPACT
@@ -44,6 +47,12 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("MediAppl")
         self.setWindowIcon(QIcon('res/Icon.png'))
+        self.stylesheet: str
+
+        # Apply Stylesheet
+        with open(STYLESHEET, "r") as file:
+            self.stylesheet = file.read()
+        app.setStyleSheet(self.stylesheet)
 
         # Create Actions
         button_new = QAction("New", self)
@@ -556,8 +565,19 @@ class MainWindow(QMainWindow):
         if "." not in path:
             path = path + "/" + os.listdir(path)[0]
         ext = path[path.rfind(".")+1:].lower()
-        print(self.database.app_associations[ext] + " \'" + path + "\'")
-        subprocess.Popen([self.database.app_associations[ext], path])
+
+        if ext in self.database.app_associations:
+            print(self.database.app_associations[ext] + " \'" + path + "\'")
+            subprocess.Popen([self.database.app_associations[ext].strip(), path])
+            return
+
+        if ext in db.SUPPORTED_IMAGE_FORMATS:
+            self.open_window = qt_util.OpenImageWindow(self.database, self.entry)
+        elif ext in db.SUPPORTED_TEXT_FORMATS:
+            self.open_window = qt_util.OpenTextWindow(self.database, self.entry)
+        else:
+            self.open_window = qt_util.OpenWindow(self.entry)
+        self.open_window.show()
 
     def edit_entry(self):
         print("Edit Entry")
@@ -727,11 +747,6 @@ class MainWindow(QMainWindow):
 #
 # Initialize Window
 application = QApplication(sys.argv)
-
-with open("style.qss", "r") as file:
-    stylesheet = file.read()
-    print(stylesheet)
-    application.setStyleSheet(stylesheet)
 
 # Create Window
 window = MainWindow(application)

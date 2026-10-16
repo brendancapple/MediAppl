@@ -648,9 +648,9 @@ class MainWindow(QMainWindow):
         self.update_entry_vbox()
 
     def switch_entry_keyboard(self):
-        if len(self.entries) < 1:
-            return
         index = self.list_dbEntries.currentIndex().row()
+        if index >= len(self.entries):
+            return
         self.entry = self.entries[index]
         self.update_entry_vbox()
         self.check_lazy_load()
@@ -668,6 +668,10 @@ class MainWindow(QMainWindow):
 
         try:
             entry_size = os.path.getsize(self.database.db_dir + entry.path)
+            if "." not in entry.path:
+                for f in os.listdir(self.database.db_dir + entry.path):
+                    entry_size += os.path.getsize(self.database.db_dir + entry.path + "/" + f)
+
             entry_size_order = "B"
 
             if entry_size > 999_999_999:
@@ -718,10 +722,11 @@ class MainWindow(QMainWindow):
         if len(self.list_dbEntries.children()) > 0:
             print("Attempt clear")
             self.list_dbEntries.clear()
-            # print("Entries cleared")
+            print("Entries cleared")
         else:
             print("needn't clear entries")
 
+        print("view entries")
         match self.view:
             case qt_util.EntryView.THUMBNAIL:
                 self.list_dbEntries.setIconSize(QSize(int(self.list_dbEntries.width()/6),
@@ -736,6 +741,7 @@ class MainWindow(QMainWindow):
 
         self.lazy_load_bounds = (0, 0)
 
+        print("add entries")
         for e in self.entries:
             widget = qt_util.EntryListing(self, e, self.view)
             self.list_dbEntries.addItem(widget)

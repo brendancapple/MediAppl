@@ -562,7 +562,7 @@ class MainWindow(QMainWindow):
     def open_entry(self):
         print("Open Entry")
         path = self.database.db_dir + self.entry.path
-        if "." not in path:
+        if not os.path.isfile(path):
             path = path + "/" + os.listdir(path)[0]
         ext = path[path.rfind(".")+1:].lower()
 
@@ -668,7 +668,7 @@ class MainWindow(QMainWindow):
 
         try:
             entry_size = os.path.getsize(self.database.db_dir + entry.path)
-            if "." not in entry.path:
+            if not os.path.isfile(self.database.db_dir + entry.path):
                 for f in os.listdir(self.database.db_dir + entry.path):
                     entry_size += os.path.getsize(self.database.db_dir + entry.path + "/" + f)
 

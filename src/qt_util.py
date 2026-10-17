@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtCore import QPoint, QRect, QSize, Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import (
@@ -729,13 +731,22 @@ class OpenImageWindow(OpenWindow):
         self.pixmap = QPixmap()
         self.image = QLabel()
 
-        self.update_image(database.db_dir + self.entry.cover_path)
+        self.images = [database.db_dir + self.entry.path]
+        self.index = 0
+        if not os.path.isfile(database.db_dir + self.entry.path):
+            print("grab subdir")
+            self.images = [
+                database.db_dir + self.entry.path + "/" + f for f in os.listdir(database.db_dir + self.entry.path)
+            ]
+            self.images.sort()
+        print(self.images)
 
-        label_filepath = QLabel(database.db_dir + self.entry.cover_path)
-        label_filepath.setAlignment(Qt.AlignBottom)
+        self.label_filepath = QLabel(self.images[0])
+        self.label_filepath.setAlignment(Qt.AlignBottom)
+        self.update_image(self.images[0])
 
         overlay = QVBoxLayout()
-        overlay.addWidget(label_filepath)
+        overlay.addWidget(self.label_filepath)
 
         overlay_widget = QWidget()
         overlay_widget.setLayout(overlay)
@@ -745,6 +756,26 @@ class OpenImageWindow(OpenWindow):
         layout.addWidget(overlay_widget, 0, 0)
 
         self.setLayout(layout)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.index += 1
+            self.index = self.index % len(self.images)
+            self.update_image(self.images[self.index])
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Right:
+            self.index += 1
+            self.index = self.index % len(self.images)
+            self.update_image(self.images[self.index])
+        if event.key() == Qt.Key_Left:
+            self.index -= 1
+            self.index = self.index % len(self.images)
+            self.update_image(self.images[self.index])
+        if event.key() == Qt.Key_Space:
+            self.index += 1
+            self.index = self.index % len(self.images)
+            self.update_image(self.images[self.index])
 
     def resizeEvent(self, event):
         if self.pixmap is None:
@@ -766,3 +797,4 @@ class OpenImageWindow(OpenWindow):
             Qt.KeepAspectRatio
         ))
         self.image.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        self.label_filepath.setText(path)

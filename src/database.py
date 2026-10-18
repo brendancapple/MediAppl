@@ -3,7 +3,7 @@ import json
 import re
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QIcon, QPixmap, QImage
 from PyQt5.QtWidgets import QProgressBar, QLabel
 
 import src.util as util
@@ -11,6 +11,7 @@ import src.util as util
 CACHE_DIR = ".cache"
 SUPPORTED_IMAGE_FORMATS = {"bmp", "png", "jpg", "jpeg", "gif", "cur", "ico", "jfif", "pbm", "pgm", "ppm", "svg", "svgz",
                            "xbm", "xpm"}
+SECONDARY_IMAGE_FORMATS = {"webp", "tif", "tiff", "dib"}
 SUPPORTED_VIDEO_FORMATS = {"mp4", "mov", "avi", "flv", "mkv"}
 SUPPORTED_AUDIO_FORMATS = {"mp3", "m4a", "ogg", "wav", "flac", "aiff"}
 SUPPORTED_TEXT_FORMATS = {"txt", "md"}
@@ -77,7 +78,7 @@ class Entry:
         print(file)
 
         entry_name = file[file.rfind("/") + 1:file.rfind(".")]
-        entry_ext = file[file.rfind(".") + 1:]
+        entry_ext = file[file.rfind(".") + 1:].lower()
         entry_cover = "unknown"
         entry_lang = None
         entry_author = None
@@ -96,7 +97,7 @@ class Entry:
             entry_cover = util.cache_epub_cover(db.db_dir, CACHE_DIR, file)[len(db.db_dir):]
             entry_name, entry_author, entry_lang = util.get_epub_metadata(file)
             entry_tags = ['Book']
-        elif entry_ext.lower() in SUPPORTED_IMAGE_FORMATS:
+        elif entry_ext.lower() in SUPPORTED_IMAGE_FORMATS or entry_ext in SECONDARY_IMAGE_FORMATS:
             entry_cover = file[len(db.db_dir):]
             entry_res = util.get_image_resolution(file)
             entry_year = util.get_image_release(file)
@@ -149,9 +150,9 @@ class Entry:
         if self.cover_cache is None:
             small_pixmap: QPixmap
             if not os.path.exists(db.db_dir + self.cover_path):
-                small_pixmap = QPixmap(self.cover_path).scaled(width, height, Qt.KeepAspectRatio, Qt.FastTransformation)
+                small_pixmap = load_pixmap(self.cover_path).scaled(width, height, Qt.KeepAspectRatio, Qt.FastTransformation)
             else:
-                small_pixmap = QPixmap(db.db_dir + self.cover_path).scaled(width, height, Qt.KeepAspectRatio, Qt.FastTransformation)
+                small_pixmap = load_pixmap(db.db_dir + self.cover_path).scaled(width, height, Qt.KeepAspectRatio, Qt.FastTransformation)
 
             self.cover_cache = QIcon(small_pixmap)
         return self.cover_cache
@@ -760,3 +761,26 @@ class Database:
         print("Languages: ", self.languages)
         print("Ratings: ", self.age_ratings)
         print("---")
+
+
+def load_pixmap(path: str) -> QPixmap:
+    pixmap: QPixmap
+    ext = path[path.rfind(".")+1:].strip().lower()
+
+    if ext in SUPPORTED_IMAGE_FORMATS:
+        pixmap = QPixmap(path)
+    else:
+        image = util.get_image_binary(path)
+        if image is None:
+            return QPixmap("res/placeholder.png")
+        height, width = image.shape[:2]
+        bytes_per_line = width * 3
+        q_image = QImage(
+            image.data,
+            width,
+            height,
+            bytes_per_line,
+            QImage.Format_RGB888
+        )
+        pixmap = QPixmap.fromImage(q_image)
+    return pixmap

@@ -571,7 +571,7 @@ class MainWindow(QMainWindow):
             subprocess.Popen([self.database.app_associations[ext].strip(), path])
             return
 
-        if ext in db.SUPPORTED_IMAGE_FORMATS:
+        if ext in db.SUPPORTED_IMAGE_FORMATS or ext in db.SECONDARY_IMAGE_FORMATS:
             self.open_window = qt_util.OpenImageWindow(self.database, self.entry)
         elif ext in db.SUPPORTED_TEXT_FORMATS:
             self.open_window = qt_util.OpenTextWindow(self.database, self.entry)
@@ -696,11 +696,11 @@ class MainWindow(QMainWindow):
         image: QPixmap
         cover_path = self.database.db_dir + entry.cover_path
         if os.path.isfile(cover_path):
-            image = QPixmap(cover_path)
+            image = db.load_pixmap(cover_path)
             image = image.scaled(max(int(self.label_entryCover.width()), int(self.width() * 0.3)),
                                  int(self.height() * 0.5), Qt.KeepAspectRatio)
         elif os.path.isfile(entry.cover_path):
-            image = QPixmap(entry.cover_path)
+            image = db.load_pixmap(entry.cover_path)
             image = image.scaled(max(int(self.label_entryCover.width()), int(self.width() * 0.3)),
                                  int(self.height() * 0.5), Qt.KeepAspectRatio)
         else:

@@ -363,3 +363,13 @@ def get_image_release(img_path) -> int:
     print(dt)
     return int(dt[:4])
 
+
+def get_image_binary(img_path):
+    print("get image binary: ", img_path)
+    try:
+        img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        return img
+    except:
+        print("failed opencv")
+    return None

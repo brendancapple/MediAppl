@@ -5,7 +5,7 @@ from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import (
     QLayout, QPushButton, QSizePolicy, QWidget, QLabel, QTextEdit, QVBoxLayout, QDialog,
     QDialogButtonBox, QScrollArea, QTabWidget, QLineEdit, QHBoxLayout, QFileDialog, QListWidgetItem, QProgressBar,
-    QStackedLayout, QGridLayout)
+    QGridLayout)
 from functools import partial
 from enum import Enum
 
@@ -789,7 +789,7 @@ class OpenImageWindow(OpenWindow):
         ))
 
     def update_image(self, path: str):
-        self.pixmap = QPixmap(path)
+        self.pixmap = db.load_pixmap(path)
         self.image.setAlignment(Qt.AlignCenter)
         self.image.setPixmap(self.pixmap.scaled(
             self.image.width(),

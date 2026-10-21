@@ -201,6 +201,7 @@ class MainWindow(QMainWindow):
         file_menu = menu.addMenu("&File")
         file_menu.addAction(button_new)
         file_menu.addAction(button_load)
+        self.load_recent_menu = file_menu.addMenu("&Load Recent")
         file_menu.addSeparator()
         file_menu.addAction(button_save)
         file_menu.addAction(button_save_as)
@@ -246,6 +247,10 @@ class MainWindow(QMainWindow):
         sort_menu.addAction(button_quick_sort)
         sort_menu.addSeparator()
         sort_menu.addAction(button_reverse)
+
+        # Grab Recent DBs
+        self.recent_paths = []
+        self.load_recent_databases()
 
         # Create Status Bar
         self.setStatusBar(QStatusBar(self))
@@ -362,6 +367,10 @@ class MainWindow(QMainWindow):
         self.database.save_as_file(appl_path)
         self.update_ui()
 
+        self.recent_paths.insert(0, appl_path)
+        self.save_recent_databases()
+        self.load_recent_databases()
+
     def load_database(self):
         print("Load Database")
         dialog = QFileDialog(self)
@@ -373,6 +382,21 @@ class MainWindow(QMainWindow):
             self.entry = self.database.entries[0]
             print("pre update")
             self.update_ui()
+
+            self.recent_paths.insert(0, filepath)
+            self.save_recent_databases()
+            self.load_recent_databases()
+
+    def load_recent_database(self, filepath: str):
+        print("Load Recent Database")
+        self.database = db.Database(filepath)
+        self.entry = self.database.entries[0]
+        print("pre update")
+        self.update_ui()
+
+        self.recent_paths.insert(0, filepath)
+        self.save_recent_databases()
+        self.load_recent_databases()
 
     def clean_database(self):
         dialog = qt_util.ConfirmationDialog("Are you sure you want to clean the database?\n"
@@ -459,6 +483,26 @@ class MainWindow(QMainWindow):
             self.database.import_metadata_from_csv(filepath)
             print("pre update")
             self.update_ui()
+
+    def load_recent_databases(self):
+        print("load recent db")
+        self.load_recent_menu.clear()
+        if not os.path.isfile("recent.log"):
+            return
+
+        with open("recent.log", "r") as file:
+            self.recent_paths = file.read().split("\n")[:5]
+            self.recent_paths = [p.strip() for p in self.recent_paths]
+        for p in self.recent_paths:
+            button_load_recent = QAction(p, self)
+            button_load_recent.setStatusTip("Load Database")
+            button_load_recent.triggered.connect(lambda: self.load_recent_database(p))
+            self.load_recent_menu.addAction(button_load_recent)
+
+    def save_recent_databases(self):
+        print("save recent db")
+        with open("recent.log", "w") as file:
+            file.write("\n".join(self.recent_paths))
 
     def search_entries(self):
         query = self.input_dbSearchbar.text().strip()
